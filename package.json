@@ -1,0 +1,40 @@
+{
+  "name": "trustap-sdk",
+  "version": "1.0.0",
+  "description": "TypeScript SDK for Trustap API - React Native compatible",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "trustap",
+    "payment",
+    "transactions",
+    "typescript",
+    "react-native",
+    "sdk"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "react-native": ">=0.60.0"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/trustap-sdk.git"
+  }
+}
