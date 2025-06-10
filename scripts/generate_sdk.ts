@@ -16,10 +16,9 @@
  *   const res = await api.basic.getTransactions();
  */
 
-// @ts-nocheck
-
 import { walk } from "https://deno.land/std@0.212.0/fs/walk.ts";
-import { generate } from "npm:openapi-typescript-codegen@0.27.0";
+import type { GenerateOptions } from "openapi-typescript-codegen";
+import { generate } from "openapi-typescript-codegen";
 
 // Adding .ts extensions to imports makes the SDK compatible with Deno
 async function addTsExtensionsToImports() {
@@ -39,14 +38,16 @@ async function addTsExtensionsToImports() {
   }
 }
 
-await generate({
+const options: GenerateOptions = {
   input: "https://docs.trustap.com/_spec/apis/openapi.json",
   output: "sdk",
   clientName: "Trustap",
   httpClient: "fetch", // Deno/Fetch API compatible client
   useUnionTypes: true,
   useOptions: true,
-});
+};
+
+await generate(options);
 
 // Add .ts extensions to all local imports
 await addTsExtensionsToImports();

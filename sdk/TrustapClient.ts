@@ -2,29 +2,29 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { BaseHttpRequest } from './core/BaseHttpRequest.ts';
-import { FetchHttpRequest } from './core/FetchHttpRequest.ts';
-import type { OpenAPIConfig } from './core/OpenAPI.ts';
-import { BuyersAndSellersService } from './services/BuyersAndSellersService.ts';
-import { ClientsService } from './services/ClientsService.ts';
-import { F2FBuyerSellerDetailsService } from './services/F2FBuyerSellerDetailsService.ts';
-import { F2FCancelService } from './services/F2FCancelService.ts';
-import { F2FComplaintService } from './services/F2FComplaintService.ts';
-import { F2FHandoverService } from './services/F2FHandoverService.ts';
-import { F2FMultiUseListingsService } from './services/F2FMultiUseListingsService.ts';
-import { F2FPaymentService } from './services/F2FPaymentService.ts';
-import { F2FSingleUseListingsService } from './services/F2FSingleUseListingsService.ts';
-import { F2FTransactionsService } from './services/F2FTransactionsService.ts';
-import { NotificationsService } from './services/NotificationsService.ts';
-import { OnlineBuyerSellerDetailsService } from './services/OnlineBuyerSellerDetailsService.ts';
-import { OnlineCancelService } from './services/OnlineCancelService.ts';
-import { OnlineComplaintService } from './services/OnlineComplaintService.ts';
-import { OnlineMultiUseListingsService } from './services/OnlineMultiUseListingsService.ts';
-import { OnlinePaymentService } from './services/OnlinePaymentService.ts';
-import { OnlineShippingService } from './services/OnlineShippingService.ts';
-import { OnlineSingleUseListingsService } from './services/OnlineSingleUseListingsService.ts';
-import { OnlineTransactionsService } from './services/OnlineTransactionsService.ts';
-import { PersonalService } from './services/PersonalService.ts';
+import type { BaseHttpRequest } from './core/BaseHttpRequest.ts.ts';
+import { FetchHttpRequest } from './core/FetchHttpRequest.ts.ts';
+import type { OpenAPIConfig } from './core/OpenAPI.ts.ts';
+import { BuyersAndSellersService } from './services/BuyersAndSellersService.ts.ts';
+import { ClientsService } from './services/ClientsService.ts.ts';
+import { F2FBuyerSellerDetailsService } from './services/F2FBuyerSellerDetailsService.ts.ts';
+import { F2FCancelService } from './services/F2FCancelService.ts.ts';
+import { F2FComplaintService } from './services/F2FComplaintService.ts.ts';
+import { F2FHandoverService } from './services/F2FHandoverService.ts.ts';
+import { F2FMultiUseListingsService } from './services/F2FMultiUseListingsService.ts.ts';
+import { F2FPaymentService } from './services/F2FPaymentService.ts.ts';
+import { F2FSingleUseListingsService } from './services/F2FSingleUseListingsService.ts.ts';
+import { F2FTransactionsService } from './services/F2FTransactionsService.ts.ts';
+import { NotificationsService } from './services/NotificationsService.ts.ts';
+import { OnlineBuyerSellerDetailsService } from './services/OnlineBuyerSellerDetailsService.ts.ts';
+import { OnlineCancelService } from './services/OnlineCancelService.ts.ts';
+import { OnlineComplaintService } from './services/OnlineComplaintService.ts.ts';
+import { OnlineMultiUseListingsService } from './services/OnlineMultiUseListingsService.ts.ts';
+import { OnlinePaymentService } from './services/OnlinePaymentService.ts.ts';
+import { OnlineShippingService } from './services/OnlineShippingService.ts.ts';
+import { OnlineSingleUseListingsService } from './services/OnlineSingleUseListingsService.ts.ts';
+import { OnlineTransactionsService } from './services/OnlineTransactionsService.ts.ts';
+import { PersonalService } from './services/PersonalService.ts.ts';
 type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
 export class TrustapClient {
     public readonly buyersAndSellers: BuyersAndSellersService;
