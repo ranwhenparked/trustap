@@ -17,8 +17,8 @@
  */
 
 import { walk } from "https://deno.land/std@0.212.0/fs/walk.ts";
-import type { GenerateOptions } from "openapi-typescript-codegen";
-import { generate } from "openapi-typescript-codegen";
+import type { Options } from "npm:openapi-typescript-codegen@0.27.0";
+import { generate } from "npm:openapi-typescript-codegen@0.27.0";
 
 // Adding .ts extensions to imports makes the SDK compatible with Deno
 async function addTsExtensionsToImports() {
@@ -38,7 +38,7 @@ async function addTsExtensionsToImports() {
   }
 }
 
-const options: GenerateOptions = {
+const options: Options = {
   input: "https://docs.trustap.com/_spec/apis/openapi.json",
   output: "sdk",
   clientName: "Trustap",
