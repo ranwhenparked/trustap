@@ -40,7 +40,7 @@ const client = createTrustapClient({
 });
 
 // Calculate transaction fees
-const { data, error } = await client.GET("/charge", {
+const { data, error } = await client.GET("/api/v1/charge", {
   params: {
     query: { price: 10000, currency: "USD" },
   },
@@ -82,7 +82,7 @@ const client = createTrustapClient({
 });
 
 // Fully typed request/response
-const { data, error } = await client.GET("/me/transactions");
+const { data, error } = await client.GET("/api/v1/me/transactions");
 ```
 
 ### Path-based Client
@@ -93,16 +93,51 @@ import { createTrustapPathClient } from "trustap-sdk";
 const client = createTrustapPathClient({ /* options */ });
 
 // Alternative syntax
-const { data } = await client["/me/transactions"].GET();
+const { data } = await client["/api/v1/me/transactions"].GET();
 ```
+
+### Face-to-Face (F2F / p2p) Transactions
+
+The standard client includes the Trustap F2F transaction endpoints from the OpenAPI spec. Use the `/api/v1/p2p/...` paths directly or the exported `TRUSTAP_F2F_PATHS` constants.
+
+```typescript
+import { createTrustapClient, TRUSTAP_F2F_PATHS } from "trustap-sdk";
+
+const client = createTrustapClient({ /* options */ });
+
+const { data: charge } = await client.GET(TRUSTAP_F2F_PATHS.charge, {
+  params: {
+    query: { price: 1234, currency: "eur" },
+  },
+});
+
+if (!charge) throw new Error("Unable to calculate F2F charge");
+
+const { data: transaction, error } = await client.POST(
+  TRUSTAP_F2F_PATHS.transactions,
+  {
+    body: {
+      role: "seller",
+      description: "Soccer ticket",
+      currency: "eur",
+      deposit_price: 1234,
+      deposit_charge: charge.charge,
+      charge_calculator_version: charge.charge_calculator_version,
+      skip_remainder: true,
+    },
+  },
+);
+```
+
+Covered F2F paths include charge calculation, create/list/get/batch transactions, create-and-join, guest-user flows, deposit acceptance/payment method, handover confirmation, complaints, metadata, claim-secret, and join-code endpoints.
 
 ### Environments
 
 ```typescript
 import { TRUSTAP_BASE_URLS } from "trustap-sdk";
 
-TRUSTAP_BASE_URLS.staging    // https://dev.stage.trustap.com/api/v1
-TRUSTAP_BASE_URLS.production // https://dev.trustap.com/api/v1
+TRUSTAP_BASE_URLS.staging    // https://dev.stage.trustap.com
+TRUSTAP_BASE_URLS.production // https://dev.trustap.com
 ```
 
 ## Webhook Handling
