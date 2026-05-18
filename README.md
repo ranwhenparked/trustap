@@ -1,4 +1,4 @@
-# trustap-sdk
+# @ranwhenparked/trustap-sdk
 
 [![npm version](https://img.shields.io/npm/v/@ranwhenparked/trustap-sdk.svg)](https://www.npmjs.com/package/@ranwhenparked/trustap-sdk)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
@@ -18,21 +18,21 @@ Trustap provides escrow and payment protection for peer-to-peer and marketplace 
 ## Installation
 
 ```bash
-npm install trustap-sdk
+npm install @ranwhenparked/trustap-sdk
 ```
 
 ```bash
-yarn add trustap-sdk
+yarn add @ranwhenparked/trustap-sdk
 ```
 
 ```bash
-pnpm add trustap-sdk
+pnpm add @ranwhenparked/trustap-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { createTrustapClient, TRUSTAP_BASE_URLS } from "trustap-sdk";
+import { createTrustapClient, TRUSTAP_BASE_URLS } from "@ranwhenparked/trustap-sdk";
 
 const client = createTrustapClient({
   baseUrl: TRUSTAP_BASE_URLS.production,
@@ -74,7 +74,7 @@ const client = createTrustapClient({
 ### Standard Client
 
 ```typescript
-import { createTrustapClient } from "trustap-sdk";
+import { createTrustapClient } from "@ranwhenparked/trustap-sdk";
 
 const client = createTrustapClient({
   baseUrl: TRUSTAP_BASE_URLS.staging, // or .production
@@ -88,7 +88,7 @@ const { data, error } = await client.GET("/api/v1/me/transactions");
 ### Path-based Client
 
 ```typescript
-import { createTrustapPathClient } from "trustap-sdk";
+import { createTrustapPathClient } from "@ranwhenparked/trustap-sdk";
 
 const client = createTrustapPathClient({ /* options */ });
 
@@ -101,7 +101,7 @@ const { data } = await client["/api/v1/me/transactions"].GET();
 The standard client includes the Trustap F2F transaction endpoints from the OpenAPI spec. Use the `/api/v1/p2p/...` paths directly or the exported `TRUSTAP_F2F_PATHS` constants.
 
 ```typescript
-import { createTrustapClient, TRUSTAP_F2F_PATHS } from "trustap-sdk";
+import { createTrustapClient, TRUSTAP_F2F_PATHS } from "@ranwhenparked/trustap-sdk";
 
 const client = createTrustapClient({ /* options */ });
 
@@ -134,7 +134,7 @@ Covered F2F paths include charge calculation, create/list/get/batch transactions
 ### Environments
 
 ```typescript
-import { TRUSTAP_BASE_URLS } from "trustap-sdk";
+import { TRUSTAP_BASE_URLS } from "@ranwhenparked/trustap-sdk";
 
 TRUSTAP_BASE_URLS.staging    // https://dev.stage.trustap.com
 TRUSTAP_BASE_URLS.production // https://dev.trustap.com
@@ -145,7 +145,7 @@ TRUSTAP_BASE_URLS.production // https://dev.trustap.com
 ### Parsing Events
 
 ```typescript
-import { trustapWebhookEventSchema } from "trustap-sdk";
+import { trustapWebhookEventSchema } from "@ranwhenparked/trustap-sdk";
 
 async function handleWebhook(req: Request) {
   const body = await req.json();
@@ -167,7 +167,7 @@ async function handleWebhook(req: Request) {
 Create handlers with compile-time exhaustiveness checking:
 
 ```typescript
-import { createOnlineWebhookHandlers, type TrustapWebhookEvent } from "trustap-sdk";
+import { createOnlineWebhookHandlers, type TrustapWebhookEvent } from "@ranwhenparked/trustap-sdk";
 
 const handlers = createOnlineWebhookHandlers({
   "basic_tx.joined": (event) => {
@@ -191,7 +191,7 @@ function processEvent(event: TrustapWebhookEvent) {
 ### Switch with Exhaustiveness
 
 ```typescript
-import { assertNever, type TrustapWebhookEvent } from "trustap-sdk";
+import { assertNever, type TrustapWebhookEvent } from "@ranwhenparked/trustap-sdk";
 
 function handleEvent(event: TrustapWebhookEvent) {
   switch (event.code) {
@@ -211,7 +211,7 @@ function handleEvent(event: TrustapWebhookEvent) {
 Map webhook events to transaction states:
 
 ```typescript
-import { mapWebhookToOnlineState } from "trustap-sdk";
+import { mapWebhookToOnlineState } from "@ranwhenparked/trustap-sdk";
 
 const state = mapWebhookToOnlineState("basic_tx.paid");
 // Returns: "paid"
@@ -223,13 +223,13 @@ Import only what you need:
 
 ```typescript
 // Full SDK
-import { createTrustapClient, trustapWebhookEventSchema } from "trustap-sdk";
+import { createTrustapClient, trustapWebhookEventSchema } from "@ranwhenparked/trustap-sdk";
 
 // Webhooks only (smaller bundle)
-import { trustapWebhookEventSchema, createOnlineWebhookHandlers } from "trustap-sdk/webhooks";
+import { trustapWebhookEventSchema, createOnlineWebhookHandlers } from "@ranwhenparked/trustap-sdk/webhooks";
 
 // Types only (no runtime code)
-import type { paths, components } from "trustap-sdk/types";
+import type { paths, components } from "@ranwhenparked/trustap-sdk/types";
 ```
 
 ## Deno
@@ -238,7 +238,7 @@ import type { paths, components } from "trustap-sdk/types";
 import { createTrustapClient } from "./mod.ts";
 
 // Or from npm
-import { createTrustapClient } from "npm:trustap-sdk";
+import { createTrustapClient } from "npm:@ranwhenparked/trustap-sdk";
 ```
 
 ## API Reference
