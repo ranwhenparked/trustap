@@ -3020,6 +3020,7 @@ export interface components {
             complaint_period_deadline?: string;
             /** Format: date-time */
             complaint_period_ended?: string;
+            contains_shipping?: boolean;
             /** Format: date-time */
             created: string;
             /**
@@ -5005,6 +5006,11 @@ export interface operations {
                     /** Format: int64 */
                     charge_calculator_version: number;
                     client_id?: string;
+                    /**
+                     * @description Specifies if the transaction contains a shippable item and
+                     *     the shipping details should be collected from the buyer.
+                     */
+                    contains_shipping?: boolean;
                     currency: components["schemas"]["p2p.Currency"];
                     /** Format: int64 */
                     deposit_charge: number;
@@ -5088,6 +5094,11 @@ export interface operations {
                 "application/json": {
                     /** Format: int64 */
                     charge_calculator_version: number;
+                    /**
+                     * @description Specifies if the transaction contains a shippable item and
+                     *     the shipping details should be collected from the buyer.
+                     */
+                    contains_shipping?: boolean;
                     creator_role: components["schemas"]["p2p.Role"];
                     currency: components["schemas"]["p2p.Currency"];
                     /** Format: int64 */
@@ -5197,6 +5208,11 @@ export interface operations {
                     buyer_id: string;
                     /** Format: int64 */
                     charge_calculator_version: number;
+                    /**
+                     * @description Specifies if the transaction contains a shippable item and
+                     *     the shipping details should be collected from the buyer.
+                     */
+                    contains_shipping?: boolean;
                     creator_role: components["schemas"]["p2p.Role"];
                     currency: components["schemas"]["p2p.Currency"];
                     /** Format: int64 */

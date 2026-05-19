@@ -2142,6 +2142,11 @@ paths:
                   type: integer
                 client_id:
                   type: string
+                contains_shipping:
+                  description: |
+                    Specifies if the transaction contains a shippable item and
+                    the shipping details should be collected from the buyer.
+                  type: boolean
                 currency:
                   $ref: '#/components/schemas/p2p.Currency'
                 deposit_charge:
@@ -2269,6 +2274,11 @@ paths:
                 charge_calculator_version:
                   format: int64
                   type: integer
+                contains_shipping:
+                  description: |
+                    Specifies if the transaction contains a shippable item and
+                    the shipping details should be collected from the buyer.
+                  type: boolean
                 creator_role:
                   $ref: '#/components/schemas/p2p.Role'
                 currency:
@@ -2428,6 +2438,11 @@ paths:
                 charge_calculator_version:
                   format: int64
                   type: integer
+                contains_shipping:
+                  description: |
+                    Specifies if the transaction contains a shippable item and
+                    the shipping details should be collected from the buyer.
+                  type: boolean
                 creator_role:
                   $ref: '#/components/schemas/p2p.Role'
                 currency:
@@ -7838,6 +7853,8 @@ components:
         complaint_period_ended:
           format: date-time
           type: string
+        contains_shipping:
+          type: boolean
         created:
           format: date-time
           type: string
