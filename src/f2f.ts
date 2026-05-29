@@ -33,6 +33,9 @@ export const TRUSTAP_F2F_PATHS = {
   complain: "/api/v1/p2p/transactions/{transaction_id}/complain",
   complainWithGuestBuyer:
     "/api/v1/p2p/transactions/{transaction_id}/complain_with_guest_buyer",
+  confirmDelivery: "/api/v1/p2p/transactions/{transaction_id}/confirm_delivery",
+  confirmDeliveryWithGuestBuyer:
+    "/api/v1/p2p/transactions/{transaction_id}/confirm_delivery_with_guest_buyer",
   confirmHandover: "/api/v1/p2p/transactions/{transaction_id}/confirm_handover",
   confirmHandoverWithGuestUser:
     "/api/v1/p2p/transactions/{transaction_id}/confirm_handover_with_guest_user",

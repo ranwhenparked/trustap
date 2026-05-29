@@ -2142,6 +2142,11 @@ paths:
                   type: integer
                 client_id:
                   type: string
+                contains_shipping:
+                  description: |
+                    Specifies if the transaction contains a shippable item and
+                    the shipping details should be collected from the buyer.
+                  type: boolean
                 currency:
                   $ref: '#/components/schemas/p2p.Currency'
                 deposit_charge:
@@ -2269,6 +2274,11 @@ paths:
                 charge_calculator_version:
                   format: int64
                   type: integer
+                contains_shipping:
+                  description: |
+                    Specifies if the transaction contains a shippable item and
+                    the shipping details should be collected from the buyer.
+                  type: boolean
                 creator_role:
                   $ref: '#/components/schemas/p2p.Role'
                 currency:
@@ -2323,6 +2333,20 @@ paths:
                 description:
                   description: |
                     A description of the goods being sold.
+                  type: string
+                image_url:
+                  description: >
+                    URL of the image displayed on the Trustap payment page to
+                    show the buyer
+
+                    the item they are paying for.
+
+                    Supports jpg, png, gif, bmp, webp and svg files. Images
+                    displayed as a
+
+                    squares. Non-square images are cropped.
+                  format: absolute_url
+                  maxLength: 2047
                   type: string
                 join_user_id:
                   description: |
@@ -2428,6 +2452,11 @@ paths:
                 charge_calculator_version:
                   format: int64
                   type: integer
+                contains_shipping:
+                  description: |
+                    Specifies if the transaction contains a shippable item and
+                    the shipping details should be collected from the buyer.
+                  type: boolean
                 creator_role:
                   $ref: '#/components/schemas/p2p.Role'
                 currency:
@@ -3223,6 +3252,117 @@ paths:
       summary: Submit a complaint for this face-to-face transaction with a guest buyer
       tags:
         - F2F Complaint
+  /api/v1/p2p/transactions/{transaction_id}/confirm_delivery:
+    post:
+      description: |
+        This endpoint allows the buyer to manually confirm the delivery
+        of the item in the case that the state of the transaction was
+        not updated asynchronously by Trustap.
+      operationId: p2p.confirmDelivery
+      parameters:
+        - in: path
+          name: transaction_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/p2p.Transaction'
+        '400':
+          description: |
+            Bad Request
+
+            `code` can be one of the following:
+
+              * `tracking_not_added`
+              * `delivery_already_set`
+              * `invalid_id`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: |
+            Forbidden
+
+            `code` can be one of the following:
+
+              * `not_buyer`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+      security:
+        - OAuth2: []
+      summary: Confirm delivery for this F2F transaction
+      tags:
+        - F2F Shipping
+  /api/v1/p2p/transactions/{transaction_id}/confirm_delivery_with_guest_buyer:
+    post:
+      description: |
+        This endpoint allows the client to manually confirm the delivery
+        on behalf of the guest buyer specified in the header as `Trustap-User`.
+      operationId: p2p.confirmDeliveryWithGuestBuyer
+      parameters:
+        - description: >-
+            Required in client flows, where you make API calls on behalf of
+            another Trustap user.
+          in: header
+          name: Trustap-User
+          required: false
+          schema:
+            type: string
+        - in: path
+          name: transaction_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/p2p.Transaction'
+        '400':
+          description: |
+            Bad Request
+
+            `code` can be one of the following:
+
+              * `tracking_not_added`
+              * `delivery_already_set`
+              * `invalid_id`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: |
+            Forbidden
+
+            `code` can be one of the following:
+
+              * `not_buyer`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+      security:
+        - APIKey: []
+      summary: Confirm delivery for this F2F transaction
+      tags:
+        - F2F Shipping
   /api/v1/p2p/transactions/{transaction_id}/confirm_handover:
     post:
       description: |
@@ -7536,6 +7676,12 @@ components:
         - sek
         - usd
         - huf
+        - aed
+        - brl
+        - cad
+        - chf
+        - dkk
+        - rsd
       example: eur
       type: string
     p2p.DepositFeeMultiplier:
@@ -7636,35 +7782,76 @@ components:
         price_extra: 0
       properties:
         charge:
+          description: |
+            The total charge of the transaction paid by the buyer. 
+            This is the sum of `charge_buyer_service` + `charge_buyer_client`.
           format: int64
           type: integer
         charge_buyer_client:
+          description: >
+            Portion of the charge paid by the buyer that is collected as
+            commission for the customer.
           format: int64
           type: integer
         charge_buyer_service:
+          description: >
+            Portion of the charge that has been paid by the buyer that is
+            collected as the Trustap fee.
           format: int64
           type: integer
         charge_international_payment:
+          description: >
+            This charge is added to the seller charge if the payment method used
+            in a transaction is from a different economic region to the seller.
           format: int64
           type: integer
         charge_seller:
+          description: >
+            Portion of the charge paid by the seller. 
+
+            This is the sum of `charge_seller_client` + `charge_seller_service`
+            + `charge_international_payment`.
           format: int64
           type: integer
         charge_seller_client:
+          description: >
+            Portion of the charge deducted from the seller's payout that that is
+            collected as commission for the platform.
           format: int64
           type: integer
         charge_seller_service:
+          description: >
+            Portion of the charge paid by the seller that is collected as the
+            Trustap fee.
           format: int64
           type: integer
         deposit_fee_multiplier:
           $ref: '#/components/schemas/p2p.DepositFeeMultiplier'
         extra_processing_charge:
+          description: >
+            Fee collected to cover the processing costs associated with
+            `price_extra`.
+
+            This charge is configurable in the Trustap Dashboard and is paid by
+            either the client or the seller.
           format: int64
           type: integer
         price:
+          description: |
+            The base price of the item or service in the transaction.
           format: int64
           type: integer
         price_extra:
+          description: >
+            This field adds an additional cost to the transaction. 
+
+            Use it to charge a buyer for things like tax or fulfillment costs.
+
+            The `price_extra` field is separate from the `price`` field. This
+            separation displays the additional cost apart from the base price on
+            the Trustap payment page. 
+
+            It also helps clients track the breakdown of charges.
           format: int64
           type: integer
       required:
@@ -7838,6 +8025,8 @@ components:
         complaint_period_ended:
           format: date-time
           type: string
+        contains_shipping:
+          type: boolean
         created:
           format: date-time
           type: string

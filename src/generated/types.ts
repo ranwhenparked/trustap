@@ -1076,6 +1076,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/p2p/transactions/{transaction_id}/confirm_delivery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm delivery for this F2F transaction
+         * @description This endpoint allows the buyer to manually confirm the delivery
+         *     of the item in the case that the state of the transaction was
+         *     not updated asynchronously by Trustap.
+         */
+        post: operations["p2p.confirmDelivery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/p2p/transactions/{transaction_id}/confirm_delivery_with_guest_buyer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm delivery for this F2F transaction
+         * @description This endpoint allows the client to manually confirm the delivery
+         *     on behalf of the guest buyer specified in the header as `Trustap-User`.
+         */
+        post: operations["p2p.confirmDeliveryWithGuestBuyer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/p2p/transactions/{transaction_id}/confirm_handover": {
         parameters: {
             query?: never;
@@ -2815,7 +2858,7 @@ export interface components {
          * @example eur
          * @enum {string}
          */
-        "p2p.Currency": "aud" | "eur" | "gbp" | "myr" | "pln" | "sek" | "usd" | "huf";
+        "p2p.Currency": "aud" | "eur" | "gbp" | "myr" | "pln" | "sek" | "usd" | "huf" | "aed" | "brl" | "cad" | "chf" | "dkk" | "rsd";
         "p2p.DepositFeeMultiplier": {
             /** Format: double */
             fee_multiplier: number;
@@ -2883,26 +2926,62 @@ export interface components {
          *     }
          */
         "p2p.Pricing": {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description The total charge of the transaction paid by the buyer.
+             *     This is the sum of `charge_buyer_service` + `charge_buyer_client`.
+             */
             charge: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Portion of the charge paid by the buyer that is collected as commission for the customer.
+             */
             charge_buyer_client: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Portion of the charge that has been paid by the buyer that is collected as the Trustap fee.
+             */
             charge_buyer_service: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description This charge is added to the seller charge if the payment method used in a transaction is from a different economic region to the seller.
+             */
             charge_international_payment?: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Portion of the charge paid by the seller.
+             *     This is the sum of `charge_seller_client` + `charge_seller_service` + `charge_international_payment`.
+             */
             charge_seller: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Portion of the charge deducted from the seller's payout that that is collected as commission for the platform.
+             */
             charge_seller_client: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Portion of the charge paid by the seller that is collected as the Trustap fee.
+             */
             charge_seller_service: number;
             deposit_fee_multiplier?: components["schemas"]["p2p.DepositFeeMultiplier"];
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Fee collected to cover the processing costs associated with `price_extra`.
+             *     This charge is configurable in the Trustap Dashboard and is paid by either the client or the seller.
+             */
             extra_processing_charge: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description The base price of the item or service in the transaction.
+             */
             price: number;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description This field adds an additional cost to the transaction.
+             *     Use it to charge a buyer for things like tax or fulfillment costs.
+             *     The `price_extra` field is separate from the `price`` field. This separation displays the additional cost apart from the base price on the Trustap payment page.
+             *     It also helps clients track the breakdown of charges.
+             */
             price_extra: number;
         };
         "p2p.Refund": {
@@ -3020,6 +3099,7 @@ export interface components {
             complaint_period_deadline?: string;
             /** Format: date-time */
             complaint_period_ended?: string;
+            contains_shipping?: boolean;
             /** Format: date-time */
             created: string;
             /**
@@ -5005,6 +5085,11 @@ export interface operations {
                     /** Format: int64 */
                     charge_calculator_version: number;
                     client_id?: string;
+                    /**
+                     * @description Specifies if the transaction contains a shippable item and
+                     *     the shipping details should be collected from the buyer.
+                     */
+                    contains_shipping?: boolean;
                     currency: components["schemas"]["p2p.Currency"];
                     /** Format: int64 */
                     deposit_charge: number;
@@ -5088,6 +5173,11 @@ export interface operations {
                 "application/json": {
                     /** Format: int64 */
                     charge_calculator_version: number;
+                    /**
+                     * @description Specifies if the transaction contains a shippable item and
+                     *     the shipping details should be collected from the buyer.
+                     */
+                    contains_shipping?: boolean;
                     creator_role: components["schemas"]["p2p.Role"];
                     currency: components["schemas"]["p2p.Currency"];
                     /** Format: int64 */
@@ -5121,6 +5211,14 @@ export interface operations {
                     deposit_price_extra?: number;
                     /** @description A description of the goods being sold. */
                     description: string;
+                    /**
+                     * Format: absolute_url
+                     * @description URL of the image displayed on the Trustap payment page to show the buyer
+                     *     the item they are paying for.
+                     *     Supports jpg, png, gif, bmp, webp and svg files. Images displayed as a
+                     *     squares. Non-square images are cropped.
+                     */
+                    image_url?: string;
                     /**
                      * @description The user that will be joined to the new
                      *     transaction when it is created. It cannot be the
@@ -5197,6 +5295,11 @@ export interface operations {
                     buyer_id: string;
                     /** Format: int64 */
                     charge_calculator_version: number;
+                    /**
+                     * @description Specifies if the transaction contains a shippable item and
+                     *     the shipping details should be collected from the buyer.
+                     */
+                    contains_shipping?: boolean;
                     creator_role: components["schemas"]["p2p.Role"];
                     currency: components["schemas"]["p2p.Currency"];
                     /** Format: int64 */
@@ -5954,6 +6057,131 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "p2p.confirmDelivery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transaction_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["p2p.Transaction"];
+                };
+            };
+            /**
+             * @description Bad Request
+             *
+             *     `code` can be one of the following:
+             *
+             *       * `tracking_not_added`
+             *       * `delivery_already_set`
+             *       * `invalid_id`
+             */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /**
+             * @description Forbidden
+             *
+             *     `code` can be one of the following:
+             *
+             *       * `not_buyer`
+             */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "p2p.confirmDeliveryWithGuestBuyer": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
+                "Trustap-User"?: string;
+            };
+            path: {
+                transaction_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["p2p.Transaction"];
+                };
+            };
+            /**
+             * @description Bad Request
+             *
+             *     `code` can be one of the following:
+             *
+             *       * `tracking_not_added`
+             *       * `delivery_already_set`
+             *       * `invalid_id`
+             */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /**
+             * @description Forbidden
+             *
+             *     `code` can be one of the following:
+             *
+             *       * `not_buyer`
+             */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
             /** @description Not Found */
             404: {
