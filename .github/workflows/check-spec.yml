@@ -14,8 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Fetch latest spec
         run: curl -o spec/openapi-latest.yaml https://docs.trustap.com/_bundle/apis/openapi.yaml
@@ -56,5 +54,4 @@ jobs:
             - **Minor**: New features
             - **Major**: Breaking changes
           branch: chore/update-openapi-spec
-          token: ${{ secrets.PAT_TOKEN }}
           commit-message: 'chore: update OpenAPI spec and regenerate types'
