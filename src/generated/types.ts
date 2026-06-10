@@ -675,7 +675,7 @@ export interface paths {
          *     https://dev.stage.trustap.com/api/v1/p2p/batch/transactions?ids=1309,609,1990,609
          *     ```
          */
-        get: operations["getP2pTransactionsByIds"];
+        get: operations["p2p.getTransactionsByIDs"];
         put?: never;
         post?: never;
         delete?: never;
@@ -841,7 +841,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update the description, currency, price and/or charge of this face-to-face transaction */
+        /** Update the description, currency, price, and/or charge of this face-to-face transaction */
         patch: operations["updateF2fTransaction"];
         trace?: never;
     };
@@ -1247,7 +1247,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get metadata for a face-to-face transaction */
+        /**
+         * Get metadata for a face-to-face transaction
+         * @description DEPRECATED
+         *
+         *     Metadata is now always included in the transaction object returned by
+         *     `GET /api/v1/p2p/transactions/{transaction_id}`.
+         */
         get: operations["p2p.getTransactionMetadata"];
         put?: never;
         /** Set metadata for a face-to-face transaction */
@@ -2839,6 +2845,13 @@ export interface components {
              *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
              */
             price_extra?: number;
+            /**
+             * Format: int64
+             * @description Represents the postage/shipping cost to be paid by the buyer.
+             *     Must be an integer provided in the smallest unit of the currency
+             *     (for example, 500 for $5.00 USD).
+             */
+            price_postage?: number;
         };
         "p2p.ClientTimelines": {
             /** Format: int64 */
@@ -2885,6 +2898,8 @@ export interface components {
             deposit_price: number;
             /** Format: int64 */
             deposit_price_extra?: number;
+            /** Format: int64 */
+            deposit_price_postage?: number;
             payment_method: string;
         };
         "p2p.FinancialAddress": {
@@ -2921,6 +2936,7 @@ export interface components {
          *       "charge_seller_client": 0,
          *       "charge_seller_service": 0,
          *       "extra_processing_charge": 0,
+         *       "postage_processing_charge": 0,
          *       "price": 1234,
          *       "price_extra": 0
          *     }
@@ -2972,6 +2988,12 @@ export interface components {
             extra_processing_charge: number;
             /**
              * Format: int64
+             * @description Fee collected to cover the processing costs associated with `price_postage`.
+             *     This charge is configurable in the Trustap Dashboard and is paid by either the client or the seller.
+             */
+            postage_processing_charge?: number;
+            /**
+             * Format: int64
              * @description The base price of the item or service in the transaction.
              */
             price: number;
@@ -2983,6 +3005,14 @@ export interface components {
              *     It also helps clients track the breakdown of charges.
              */
             price_extra: number;
+            /**
+             * Format: int64
+             * @description This field adds an additional cost to the transaction.
+             *     Use it to charge a buyer for things like shipping costs.
+             *     The `price_postage` field is separate from the `price`` field. This separation displays the additional cost apart from the base price on the Trustap payment page.
+             *     It also helps clients track the breakdown of charges.
+             */
+            price_postage?: number;
         };
         "p2p.Refund": {
             /** Format: int64 */
@@ -3154,9 +3184,25 @@ export interface components {
              */
             listing_id?: string;
             listing_type?: components["schemas"]["p2p.ListingType"];
+            /**
+             * @description Arbitrary key-value string pairs, which allows the addition of extra
+             *     information to transactions outside of the prescribed fields. For
+             *     example, when a transaction is used to power a product on an ecommerce
+             *     marketplace, the the product ID can be added to the transaction for
+             *     reference.
+             */
+            metadata?: {
+                [key: string]: unknown;
+            };
             order_issue?: components["schemas"]["p2p.OrderIssue"];
             /** Format: date-time */
             order_issue_raised?: string;
+            /**
+             * @description The party responsible for bearing the postage cost.
+             *     Only present when `price_postage` is defined.
+             *     Possible values: `buyer`, `seller`, `client`.
+             */
+            price_postage_bearer?: string;
             /** Format: date-time */
             priced?: string;
             pricing?: components["schemas"]["p2p.Pricing"];
@@ -3574,8 +3620,8 @@ export interface operations {
                 "application/json": {
                     country_code?: string;
                     email: string;
-                    first_name: string;
-                    last_name: string;
+                    first_name?: string;
+                    last_name?: string;
                     tos_acceptance: components["schemas"]["users.TosAcceptance"];
                 };
             };
@@ -3594,8 +3640,6 @@ export interface operations {
              * @description Bad Request
              *       `code` can be one of the following:
              *         * `email_missing`
-             *         * `first_name_missing`
-             *         * `last_name_missing`
              *         * `tos_acceptance_ip_missing`
              *         * `invalid_country_code`
              *         * `invalid_email`
@@ -4797,7 +4841,7 @@ export interface operations {
             };
         };
     };
-    getP2pTransactionsByIds: {
+    "p2p.getTransactionsByIDs": {
         parameters: {
             query: {
                 /** @description A comma-separated list of transaction IDs */
@@ -4824,8 +4868,8 @@ export interface operations {
              *     `code` can be one of the following:
              *
              *       * `ids_missing`
-             *       * `invalid_id`
              *       * `too_many_ids`
+             *       * `invalid_id`
              */
             400: {
                 headers: {
@@ -4858,6 +4902,12 @@ export interface operations {
                  *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
                  */
                 price_extra?: number;
+                /**
+                 * @description Represents the postage/shipping cost to be paid by the buyer.
+                 *     Must be an integer provided in the smallest unit of the currency
+                 *     (for example, 500 for $5.00 USD).
+                 */
+                price_postage?: number;
                 /**
                  * @description The `fee_multiplier` parameter is used to apply a higher percentage
                  *     fee based on the total price of the transaction. The percentage fee
@@ -5113,6 +5163,13 @@ export interface operations {
                      *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
                      */
                     deposit_price_extra?: number;
+                    /**
+                     * Format: int64
+                     * @description Represents the postage/shipping cost to be paid by the buyer.
+                     *     Must be an integer provided in the smallest unit of the currency
+                     *     (for example, 500 for $5.00 USD).
+                     */
+                    deposit_price_postage?: number;
                     /** @description A description of the goods being sold. */
                     description: string;
                     role: components["schemas"]["p2p.Role"];
@@ -5209,6 +5266,13 @@ export interface operations {
                      *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
                      */
                     deposit_price_extra?: number;
+                    /**
+                     * Format: int64
+                     * @description Represents the postage/shipping cost to be paid by the buyer.
+                     *     Must be an integer provided in the smallest unit of the currency
+                     *     (for example, 500 for $5.00 USD).
+                     */
+                    deposit_price_postage?: number;
                     /** @description A description of the goods being sold. */
                     description: string;
                     /**
@@ -5266,6 +5330,20 @@ export interface operations {
              *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
              */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /**
+             * @description Conflict
+             *
+             *     `code` can be one of the following:
+             *       * `unsupported_seller_client_configuration`
+             */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5331,6 +5409,13 @@ export interface operations {
                      *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
                      */
                     deposit_price_extra?: number;
+                    /**
+                     * Format: int64
+                     * @description Represents the postage/shipping cost to be paid by the buyer.
+                     *     Must be an integer provided in the smallest unit of the currency
+                     *     (for example, 500 for $5.00 USD).
+                     */
+                    deposit_price_postage?: number;
                     /** @description A description of the goods being sold. */
                     description: string;
                     /**
@@ -5381,8 +5466,23 @@ export interface operations {
              *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
              *       * `invalid_image_url`
              *       * `image_url_too_long`
+             *       * `seller_country_code_not_set`
              */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /**
+             * @description Conflict
+             *
+             *     `code` can be one of the following:
+             *       * `unsupported_seller_client_configuration`
+             */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5439,6 +5539,13 @@ export interface operations {
                     deposit_price?: number;
                     /** Format: int64 */
                     deposit_price_extra?: number;
+                    /**
+                     * Format: int64
+                     * @description Represents the postage/shipping cost to be paid by the buyer.
+                     *     Must be an integer provided in the smallest unit of the currency
+                     *     (for example, 500 for $5.00 USD).
+                     */
+                    deposit_price_postage?: number;
                     /** @description A description of the goods being sold. */
                     description?: string;
                 };
@@ -5519,6 +5626,7 @@ export interface operations {
              *       * `deposit_not_paid`
              *       * `deposit_already_refunded`
              *       * `not_complained`
+             *       * `complaint_cancelled`
              */
             400: {
                 headers: {
@@ -6493,6 +6601,20 @@ export interface operations {
                 };
                 content?: never;
             };
+            /**
+             * @description Conflict
+             *
+             *     `code` can be one of the following:
+             *       * `unsupported_seller_client_configuration`
+             */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
         };
     };
     "p2p.getTransactionMetadata": {
@@ -7036,6 +7158,20 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /**
+             * @description Conflict
+             *
+             *     `code` can be one of the following:
+             *       * `unsupported_seller_client_configuration`
+             */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
         };
     };
