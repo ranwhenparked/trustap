@@ -28,6 +28,7 @@ export const TRUSTAP_F2F_PATHS = {
     "/api/v1/p2p/transactions/{transaction_id}/cancel_with_description",
   cancelWithDescriptionWithGuestUser:
     "/api/v1/p2p/transactions/{transaction_id}/cancel_with_description_with_guest_user",
+  transactionCharge: "/api/v1/p2p/transactions/{transaction_id}/charge",
   claimForBuyer: "/api/v1/p2p/transactions/{transaction_id}/claim_for_buyer",
   claimForSeller: "/api/v1/p2p/transactions/{transaction_id}/claim_for_seller",
   complain: "/api/v1/p2p/transactions/{transaction_id}/complain",

@@ -841,8 +841,8 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update the description, currency, price, and/or charge of this face-to-face transaction */
-        patch: operations["updateF2fTransaction"];
+        /** Update the description, currency, price and/or charge of this face-to-face transaction */
+        patch: operations["p2p.updateTransaction"];
         trace?: never;
     };
     "/api/v1/p2p/transactions/{transaction_id}/accept_complaint": {
@@ -991,6 +991,30 @@ export interface paths {
          *     the buyer.
          */
         post: operations["p2p.cancelP2PTransactionWithDescriptionAsGuest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/p2p/transactions/{transaction_id}/charge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the Trustap fee for a transaction
+         * @description This returns the Trustap fee, in the `currency`'s smallest unit,
+         *     for a transaction involving goods with the supplied `price`. See
+         *     [the Stripe
+         *     documentation](https://stripe.com/docs/currencies#zero-decimal)
+         *     for more details.
+         */
+        get: operations["p2p.getChargeForTransaction"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2859,14 +2883,21 @@ export interface components {
         };
         /**
          * @example {
+         *       "category": "other",
          *       "description": "Item was fake"
          *     }
          */
         "p2p.Complaint": {
             /** Format: date-time */
             accepted?: string;
+            category: components["schemas"]["p2p.ComplaintCategory"];
             description: string;
         };
+        /**
+         * @example other
+         * @enum {string}
+         */
+        "p2p.ComplaintCategory": "item_not_received" | "item_not_as_described" | "other";
         /**
          * @example eur
          * @enum {string}
@@ -2921,12 +2952,19 @@ export interface components {
         "p2p.ListingType": "single_use" | "multi_use";
         /**
          * @example {
+         *       "category": "other",
          *       "description": "Item was not delivered"
          *     }
          */
         "p2p.OrderIssue": {
+            category: components["schemas"]["p2p.OrderIssueCategory"];
             description: string;
         };
+        /**
+         * @example other
+         * @enum {string}
+         */
+        "p2p.OrderIssueCategory": "item_not_received" | "other";
         /**
          * @example {
          *       "charge": 78,
@@ -2986,6 +3024,12 @@ export interface components {
              *     This charge is configurable in the Trustap Dashboard and is paid by either the client or the seller.
              */
             extra_processing_charge: number;
+            /**
+             * @description Indicates who is responsible for paying the postage price.
+             *     Only present if `price_postage` is provided.
+             * @enum {string}
+             */
+            postage_bearer?: "buyer" | "seller" | "client";
             /**
              * Format: int64
              * @description Fee collected to cover the processing costs associated with `price_postage`.
@@ -3197,12 +3241,6 @@ export interface components {
             order_issue?: components["schemas"]["p2p.OrderIssue"];
             /** Format: date-time */
             order_issue_raised?: string;
-            /**
-             * @description The party responsible for bearing the postage cost.
-             *     Only present when `price_postage` is defined.
-             *     Possible values: `buyer`, `seller`, `client`.
-             */
-            price_postage_bearer?: string;
             /** Format: date-time */
             priced?: string;
             pricing?: components["schemas"]["p2p.Pricing"];
@@ -3434,6 +3472,14 @@ export interface components {
         "p2p.submitComplaintSubmitComplaintBody": {
             content: {
                 "application/json": {
+                    category?: components["schemas"]["p2p.ComplaintCategory"];
+                    description: string;
+                };
+            };
+        };
+        "basic.submitComplaintWithDescriptionDescriptionBody": {
+            content: {
+                "application/json": {
                     description: string;
                 };
             };
@@ -3656,7 +3702,13 @@ export interface operations {
     "personal.getAccountSession": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /**
+                 * @description Required in client flows, where you make API calls on behalf of another Trustap user.
+                 *     Can be used with managed users ID and client API key.
+                 */
+                "Trustap-User"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -4111,7 +4163,13 @@ export interface operations {
     getStripePublishableKeyForUser: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /**
+                 * @description Required in client flows, where you make API calls on behalf of another Trustap user.
+                 *     Can be used with managed users ID and client API key.
+                 */
+                "Trustap-User"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -4608,6 +4666,7 @@ export interface operations {
              *       * `unsupported_currency`
              *       * `invalid_role`
              *       * `no_guest_user`
+             *       * `guest_user_not_found`
              *       * `invalid_charge_config`
              *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
              *       * `invalid_image_url`
@@ -4663,7 +4722,13 @@ export interface operations {
     "personal.getVerificationSession": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /**
+                 * @description Required in client flows, where you make API calls on behalf of another Trustap user.
+                 *     Can be used with managed users ID and client API key.
+                 */
+                "Trustap-User"?: string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -5456,6 +5521,7 @@ export interface operations {
              *     `code` can be one of the following:
              *       * `incompatible_platforms`
              *       * `no_guest_user`
+             *       * `guest_user_not_found`
              *       * `invalid_role`
              *       * `incorrect_charge`
              *       * `unsupported_currency`
@@ -5517,7 +5583,7 @@ export interface operations {
             };
         };
     };
-    updateF2fTransaction: {
+    "p2p.updateTransaction": {
         parameters: {
             query?: never;
             header?: {
@@ -5532,9 +5598,11 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    currency?: components["schemas"]["Currency"];
+                    currency?: components["schemas"]["p2p.Currency"];
                     /** Format: int64 */
                     deposit_charge?: number;
+                    /** Format: int64 */
+                    deposit_charge_seller?: number;
                     /** Format: int64 */
                     deposit_price?: number;
                     /** Format: int64 */
@@ -5568,7 +5636,6 @@ export interface operations {
              *
              *       * `invalid_id`
              *       * `second_party_already_joined`
-             *       * `values_not_changed`
              */
             400: {
                 headers: {
@@ -5968,6 +6035,93 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    "p2p.getChargeForTransaction": {
+        parameters: {
+            query: {
+                /** @description The currency that the `price` is specified in. */
+                currency?: string;
+                /**
+                 * @description The price of the goods being sold in this transaction, in
+                 *     the `currency`'s smallest unit. For example, if a trading
+                 *     card is being sold for $12.34 (with `currency` as `usd`),
+                 *     then the request for the charge for this transaction would
+                 *     be `/charge?price=1234&currency=usd`.
+                 */
+                price: number;
+                /**
+                 * @description Represents an additional charge to be paid by the buyer added
+                 *     to the transaction total. Use this field to include costs like
+                 *     processing fees, local taxes, or shipping surcharges.
+                 *     Must be an integer provided in the smallest unit of the currency
+                 *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
+                 */
+                price_extra?: number;
+                /**
+                 * @description Represents the postage/shipping cost to be paid by the buyer.
+                 *     Must be an integer provided in the smallest unit of the currency
+                 *     (for example, 500 for $5.00 USD).
+                 */
+                price_postage?: number;
+                /**
+                 * @description The `fee_multiplier` parameter is used to apply a higher percentage
+                 *     fee based on the total price of the transaction. The percentage fee
+                 *     is calculated multiplying the `percentage fee` by the `fee_multiplier`.
+                 */
+                fee_multiplier?: number;
+                /** @description Deprecated. */
+                quantity?: number;
+                /**
+                 * @description The payment method that will be used to pay for the
+                 *     transaction. This is necessary because different payment
+                 *     methods may result in different fees.
+                 *
+                 *     The default value is `card`.
+                 */
+                payment_method?: string;
+                /** @description The charge config for which the charge amount is computed. */
+                charge_config?: number;
+            };
+            header?: never;
+            path: {
+                transaction_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["p2p.Charge"];
+                };
+            };
+            /**
+             * @description Bad Request
+             *
+             *     `code` can be one of the following:
+             *
+             *       * `fee_multiplier_too_low`
+             *       * `invalid_payment_method`
+             *       * `currency_missing`
+             *       * `negative_price`
+             *       * `price_too_low`
+             *       * `unsupported_currency`
+             *       * `invalid_charge_config`
+             *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
+             */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
         };
     };
@@ -8031,7 +8185,7 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: components["requestBodies"]["p2p.submitComplaintSubmitComplaintBody"];
+        requestBody: components["requestBodies"]["basic.submitComplaintWithDescriptionDescriptionBody"];
         responses: {
             /** @description OK */
             200: {
@@ -8101,7 +8255,7 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: components["requestBodies"]["p2p.submitComplaintSubmitComplaintBody"];
+        requestBody: components["requestBodies"]["basic.submitComplaintWithDescriptionDescriptionBody"];
         responses: {
             /** @description OK */
             200: {

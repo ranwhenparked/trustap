@@ -369,6 +369,17 @@ paths:
   /api/v1/me/account_session:
     get:
       operationId: personal.getAccountSession
+      parameters:
+        - description: >
+            Required in client flows, where you make API calls on behalf of
+            another Trustap user.
+
+            Can be used with managed users ID and client API key.
+          in: header
+          name: Trustap-User
+          required: false
+          schema:
+            type: string
       responses:
         '201':
           description: OK
@@ -829,6 +840,17 @@ paths:
         Returns the Publishable Key for the Stripe Platform
         which the user is linked to.
       operationId: getStripePublishableKeyForUser
+      parameters:
+        - description: >
+            Required in client flows, where you make API calls on behalf of
+            another Trustap user.
+
+            Can be used with managed users ID and client API key.
+          in: header
+          name: Trustap-User
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -1494,6 +1516,7 @@ paths:
               * `unsupported_currency`
               * `invalid_role`
               * `no_guest_user`
+              * `guest_user_not_found`
               * `invalid_charge_config`
               * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
               * `invalid_image_url`
@@ -1548,6 +1571,17 @@ paths:
         Offline access is allowed for this endpoint when the user has granted
         the `profile` scope to the client that is performing the request.
       operationId: personal.getVerificationSession
+      parameters:
+        - description: >
+            Required in client flows, where you make API calls on behalf of
+            another Trustap user.
+
+            Can be used with managed users ID and client API key.
+          in: header
+          name: Trustap-User
+          required: false
+          schema:
+            type: string
       responses:
         '201':
           description: OK
@@ -2611,6 +2645,7 @@ paths:
             `code` can be one of the following:
               * `incompatible_platforms`
               * `no_guest_user`
+              * `guest_user_not_found`
               * `invalid_role`
               * `incorrect_charge`
               * `unsupported_currency`
@@ -2670,7 +2705,7 @@ paths:
       tags:
         - F2F Transactions
     patch:
-      operationId: updateF2fTransaction
+      operationId: p2p.updateTransaction
       parameters:
         - description: >-
             Required in client flows, where you make API calls on behalf of
@@ -2698,8 +2733,11 @@ paths:
                 description: Soccer ticket
               properties:
                 currency:
-                  $ref: '#/components/schemas/Currency'
+                  $ref: '#/components/schemas/p2p.Currency'
                 deposit_charge:
+                  format: int64
+                  type: integer
+                deposit_charge_seller:
                   format: int64
                   type: integer
                 deposit_price:
@@ -2740,7 +2778,6 @@ paths:
 
               * `invalid_id`
               * `second_party_already_joined`
-              * `values_not_changed`
           content:
             application/json:
               schema:
@@ -2750,7 +2787,7 @@ paths:
         '404':
           description: Not Found
       summary: >-
-        Update the description, currency, price, and/or charge of this
+        Update the description, currency, price and/or charge of this
         face-to-face transaction
       tags:
         - F2F Payment
@@ -3122,6 +3159,133 @@ paths:
       summary: Cancel this face-to-face transaction with a description with guest user
       tags:
         - F2F Cancel
+  /api/v1/p2p/transactions/{transaction_id}/charge:
+    get:
+      description: |
+        This returns the Trustap fee, in the `currency`'s smallest unit,
+        for a transaction involving goods with the supplied `price`. See
+        [the Stripe
+        documentation](https://stripe.com/docs/currencies#zero-decimal)
+        for more details.
+      operationId: p2p.getChargeForTransaction
+      parameters:
+        - in: path
+          name: transaction_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - description: |
+            The currency that the `price` is specified in.
+          in: query
+          name: currency
+          required: false
+          schema:
+            type: string
+        - description: |
+            The price of the goods being sold in this transaction, in
+            the `currency`'s smallest unit. For example, if a trading
+            card is being sold for $12.34 (with `currency` as `usd`),
+            then the request for the charge for this transaction would
+            be `/charge?price=1234&currency=usd`.
+          in: query
+          name: price
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - description: |
+            Represents an additional charge to be paid by the buyer added
+            to the transaction total. Use this field to include costs like
+            processing fees, local taxes, or shipping surcharges.
+            Must be an integer provided in the smallest unit of the currency
+            (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
+          in: query
+          name: price_extra
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - description: |
+            Represents the postage/shipping cost to be paid by the buyer.
+            Must be an integer provided in the smallest unit of the currency
+            (for example, 500 for $5.00 USD).
+          in: query
+          name: price_postage
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - description: >
+            The `fee_multiplier` parameter is used to apply a higher percentage
+
+            fee based on the total price of the transaction. The percentage fee
+
+            is calculated multiplying the `percentage fee` by the
+            `fee_multiplier`.
+          in: query
+          name: fee_multiplier
+          required: false
+          schema:
+            type: number
+            format: double
+        - description: |
+            Deprecated.
+          in: query
+          name: quantity
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - description: |
+            The payment method that will be used to pay for the
+            transaction. This is necessary because different payment
+            methods may result in different fees.
+
+            The default value is `card`.
+          in: query
+          name: payment_method
+          required: false
+          schema:
+            type: string
+        - description: |
+            The charge config for which the charge amount is computed.
+          in: query
+          name: charge_config
+          required: false
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/p2p.Charge'
+        '400':
+          description: |
+            Bad Request
+
+            `code` can be one of the following:
+
+              * `fee_multiplier_too_low`
+              * `invalid_payment_method`
+              * `currency_missing`
+              * `negative_price`
+              * `price_too_low`
+              * `unsupported_currency`
+              * `invalid_charge_config`
+              * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - OAuth2: []
+      summary: Get the Trustap fee for a transaction
+      tags:
+        - F2F Transactions
   /api/v1/p2p/transactions/{transaction_id}/claim_for_buyer:
     post:
       description: >
@@ -5172,7 +5336,8 @@ paths:
             type: integer
             format: int64
       requestBody:
-        $ref: '#/components/requestBodies/p2p.submitComplaintSubmitComplaintBody'
+        $ref: >-
+          #/components/requestBodies/basic.submitComplaintWithDescriptionDescriptionBody
       responses:
         '200':
           description: OK
@@ -5236,7 +5401,8 @@ paths:
           schema:
             type: string
       requestBody:
-        $ref: '#/components/requestBodies/p2p.submitComplaintSubmitComplaintBody'
+        $ref: >-
+          #/components/requestBodies/basic.submitComplaintWithDescriptionDescriptionBody
       responses:
         '200':
           description: OK
@@ -6670,6 +6836,21 @@ components:
             example:
               description: Item was fake
             properties:
+              category:
+                $ref: '#/components/schemas/p2p.ComplaintCategory'
+              description:
+                type: string
+            required:
+              - description
+            type: object
+      required: true
+    basic.submitComplaintWithDescriptionDescriptionBody:
+      content:
+        application/json:
+          schema:
+            example:
+              description: Item was fake
+            properties:
               description:
                 type: string
             required:
@@ -7760,16 +7941,27 @@ components:
       type: object
     p2p.Complaint:
       example:
+        category: other
         description: Item was fake
       properties:
         accepted:
           format: date-time
           type: string
+        category:
+          $ref: '#/components/schemas/p2p.ComplaintCategory'
         description:
           type: string
       required:
         - description
+        - category
       type: object
+    p2p.ComplaintCategory:
+      enum:
+        - item_not_received
+        - item_not_as_described
+        - other
+      example: other
+      type: string
     p2p.Currency:
       enum:
         - aud
@@ -7869,13 +8061,23 @@ components:
       type: string
     p2p.OrderIssue:
       example:
+        category: other
         description: Item was not delivered
       properties:
+        category:
+          $ref: '#/components/schemas/p2p.OrderIssueCategory'
         description:
           type: string
       required:
         - description
+        - category
       type: object
+    p2p.OrderIssueCategory:
+      enum:
+        - item_not_received
+        - other
+      example: other
+      type: string
     p2p.Pricing:
       example:
         charge: 78
@@ -7944,6 +8146,15 @@ components:
             either the client or the seller.
           format: int64
           type: integer
+        postage_bearer:
+          description: |
+            Indicates who is responsible for paying the postage price.
+            Only present if `price_postage` is provided.
+          enum:
+            - buyer
+            - seller
+            - client
+          type: string
         postage_processing_charge:
           description: >
             Fee collected to cover the processing costs associated with
@@ -8248,12 +8459,6 @@ components:
           $ref: '#/components/schemas/p2p.OrderIssue'
         order_issue_raised:
           format: date-time
-          type: string
-        price_postage_bearer:
-          description: |
-            The party responsible for bearing the postage cost.
-            Only present when `price_postage` is defined.
-            Possible values: `buyer`, `seller`, `client`.
           type: string
         priced:
           format: date-time
