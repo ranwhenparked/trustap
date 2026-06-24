@@ -3515,7 +3515,6 @@ paths:
 
             `code` can be one of the following:
 
-              * `tracking_not_added`
               * `delivery_already_set`
               * `invalid_id`
           content:
@@ -7978,6 +7977,7 @@ components:
         - chf
         - dkk
         - rsd
+        - czk
       example: eur
       type: string
     p2p.DepositFeeMultiplier:
@@ -8459,6 +8459,8 @@ components:
           $ref: '#/components/schemas/p2p.OrderIssue'
         order_issue_raised:
           format: date-time
+          type: string
+        payout_id:
           type: string
         priced:
           format: date-time

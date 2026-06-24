@@ -2902,7 +2902,7 @@ export interface components {
          * @example eur
          * @enum {string}
          */
-        "p2p.Currency": "aud" | "eur" | "gbp" | "myr" | "pln" | "sek" | "usd" | "huf" | "aed" | "brl" | "cad" | "chf" | "dkk" | "rsd";
+        "p2p.Currency": "aud" | "eur" | "gbp" | "myr" | "pln" | "sek" | "usd" | "huf" | "aed" | "brl" | "cad" | "chf" | "dkk" | "rsd" | "czk";
         "p2p.DepositFeeMultiplier": {
             /** Format: double */
             fee_multiplier: number;
@@ -3241,6 +3241,7 @@ export interface components {
             order_issue?: components["schemas"]["p2p.OrderIssue"];
             /** Format: date-time */
             order_issue_raised?: string;
+            payout_id?: string;
             /** Format: date-time */
             priced?: string;
             pricing?: components["schemas"]["p2p.Pricing"];
@@ -6354,7 +6355,6 @@ export interface operations {
              *
              *     `code` can be one of the following:
              *
-             *       * `tracking_not_added`
              *       * `delivery_already_set`
              *       * `invalid_id`
              */
