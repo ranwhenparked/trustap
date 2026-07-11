@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "trustap-mcp": {
+      "url": "https://docs.trustap.com/mcp"
+    }
+  }
+}
