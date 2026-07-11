@@ -1,7 +1,7 @@
 {
   "name": "@ranwhenparked/trustap-sdk",
-  "version": "0.9.0",
-  "description": "Trustap API SDK (OpenAPI)",
+  "version": "2.0.0",
+  "description": "Type-safe Trustap API v2 SDK with webhook validation",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -27,9 +27,10 @@
   ],
   "scripts": {
     "generate": "openapi-typescript spec/openapi.yaml -o src/generated/types.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "rm -rf dist && tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs",
     "prepublishOnly": "npm run generate && npm run build",
-    "fetch-spec": "curl -fsSL -o spec/openapi.yaml https://docs.trustap.com/_bundle/apis/@v1.0/openapi.yaml",
+    "fetch-spec": "curl -fsSL -o spec/openapi.yaml https://docs.trustap.com/_bundle/apis/@v2.0/openapi.yaml",
     "sync": "npm run fetch-spec && npm run generate"
   },
   "keywords": [],

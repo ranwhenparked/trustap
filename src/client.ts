@@ -8,8 +8,8 @@ import createClient, {
 import type { paths } from "./generated/types.ts";
 
 export const TRUSTAP_BASE_URLS = {
-  staging: "https://dev.stage.trustap.com",
-  production: "https://dev.trustap.com",
+  sandbox: "https://api.test.trustap.com",
+  production: "https://api.trustap.com",
 } as const;
 
 export type TrustapClient = Client<paths>;
@@ -34,7 +34,7 @@ export function createBearerAuthHeader(accessToken: string): string {
 }
 
 export function createTrustapClient(options: TrustapClientOptions = {}): TrustapClient {
-  const { baseUrl = TRUSTAP_BASE_URLS.staging, headers, auth, ...rest } = options;
+  const { baseUrl = TRUSTAP_BASE_URLS.sandbox, headers, auth, ...rest } = options;
   const authHeader = resolveAuthHeader(auth);
   const clientOptions: ClientOptions = { baseUrl, ...rest };
 
@@ -50,7 +50,7 @@ export function createTrustapClient(options: TrustapClientOptions = {}): Trustap
 export function createTrustapPathClient(
   options: TrustapClientOptions = {},
 ): TrustapPathClient {
-  const { baseUrl = TRUSTAP_BASE_URLS.staging, headers, auth, ...rest } = options;
+  const { baseUrl = TRUSTAP_BASE_URLS.sandbox, headers, auth, ...rest } = options;
   const authHeader = resolveAuthHeader(auth);
   const clientOptions: ClientOptions = { baseUrl, ...rest };
 

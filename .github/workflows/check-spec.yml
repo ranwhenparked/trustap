@@ -8,7 +8,7 @@ on:
       spec_url:
         description: OpenAPI spec URL
         required: false
-        default: https://docs.trustap.com/_bundle/apis/@v1.0/openapi.yaml
+        default: https://docs.trustap.com/_bundle/apis/@v2.0/openapi.yaml
 
 permissions:
   contents: write
@@ -22,7 +22,7 @@ jobs:
 
       - name: Fetch latest spec
         env:
-          SPEC_URL: ${{ inputs.spec_url || 'https://docs.trustap.com/_bundle/apis/@v1.0/openapi.yaml' }}
+          SPEC_URL: ${{ inputs.spec_url || 'https://docs.trustap.com/_bundle/apis/@v2.0/openapi.yaml' }}
         run: |
           curl -fsSL --retry 3 --retry-delay 5 -o spec/openapi-latest.yaml "$SPEC_URL"
           grep -Eq '^openapi: ["'"'"']?3\.' spec/openapi-latest.yaml

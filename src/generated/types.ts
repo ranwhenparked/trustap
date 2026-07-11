@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    "/api/v1/batch/transactions": {
+    "/v2/carriers": {
         parameters: {
             query?: never;
             header?: never;
@@ -12,22 +12,17 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get multiple online transactions by their IDs
-         * @description This endpoint takes a required `ids` parameter that contains a
-         *     comma-separated list of transaction IDs, and returns the
-         *     transactions corresponding to those IDs. A maximum of 50 IDs may
-         *     be provided, results are returned in the order specified in
-         *     `ids`, and duplicates are preserved. Transactions that couldn't
-         *     be found will be returned as `null` values in the result array.
-         *     The following example request results in the `200 OK` response
-         *     described below, assuming that the transaction with ID `1990`
-         *     couldn't be found:
-         *
-         *     ``` http
-         *     https://dev.stage.trustap.com/api/v1/batch/transactions?ids=1309,609,1990,609
-         *     ```
+         * Get the supported carriers
+         * @description This returns the carriers that are currently supported for
+         *     automated tracking. The carrier `name`
+         *     should be shown to users but the `code` should be submitted to
+         *     the `/track` endpoint when submitting tracking details.
+         *     Likewise, when showing a transaction to the user, the `carrier`
+         *     field stored with the transaction should be used to index these
+         *     carriers and show the human-readable name of the carrier to the
+         *     user, if this index is found.
          */
-        get: operations["basic.getTransactionsByIds"];
+        get: operations["v2_transactions.getSupportedCarriers"];
         put?: never;
         post?: never;
         delete?: never;
@@ -36,7 +31,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/charge": {
+    "/v2/fees": {
         parameters: {
             query?: never;
             header?: never;
@@ -44,14 +39,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get the Trustap fee for an online transaction
+         * Get the Trustap fee for a transaction
          * @description This returns the Trustap fee, in the `currency`'s smallest unit,
-         *     for a transaction involving goods with the supplied `price`. See
+         *     for a transaction involving goods with the supplied `amount`. See
          *     [the Stripe
          *     documentation](https://stripe.com/docs/currencies#zero-decimal)
          *     for more details.
          */
-        get: operations["basic.getCharge"];
+        get: operations["v2_transactions.getFees"];
         put?: never;
         post?: never;
         delete?: never;
@@ -60,41 +55,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/client/supported_registration_countries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get supported registration countries for the current client */
-        get: operations["client.getSupportedRegistrationCountries"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/clients/{client_id}/timelines": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get timelines for the given client */
-        get: operations["basic_client.getTimelinesForClient"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/guest_users": {
+    "/v2/guest_users": {
         parameters: {
             query?: never;
             header?: never;
@@ -105,345 +66,21 @@ export interface paths {
         put?: never;
         /**
          * Create a new guest user
-         * @description This endpoint creates guest user which can be used as the buyer or the seller.
-         *     If guest user is used as the seller in a transaction, they need to be created with
-         *     `country_code` parameter correctly set. This is important because of currencies
-         *     they can use in their transactions.
-         *     `tos_acceptance` is the parameter which is important for disputes/chargeback and
-         *     represent the timestamp when Trustap ToS were accepted https://www.trustap.com/terms.
+         * @description This endpoint creates a new guest user which can be used as the buyer or
+         *     the seller in a transaction. Guest users can be used to create transactions
+         *     for users that don't yet have login details, or who choose not to use the
+         *     logged-in user for creating the new transaction. Emails are sent to guest
+         *     users which will contain details for adding guest transactions to their
+         *     logged-in profile.
          */
-        post: operations["users.createGuestUser"];
+        post: operations["v2_users.createGuestUser"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/me/account_session": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Create an account session and retrieve the client secret for it */
-        get: operations["personal.getAccountSession"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/balances": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the balance for the current user in each currency */
-        get: operations["users.getBalances"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/debit_account": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get debit account details */
-        get: operations["personal.getDebitAccount"];
-        put?: never;
-        /** Set debit account details */
-        post: operations["personal.setDebitAccount"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/features": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the status enabled/disabled of user's features */
-        get: operations["users.getUserFeatures"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/features/instant_payouts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Allow users to turn instant payouts feature on/off */
-        post: operations["users.setInstantPayouts"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/instant_payout_balance": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get instant payout balance */
-        get: operations["personal.getInstantPayoutBalance"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/notifications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the notifications for the logged-in user */
-        get: operations["app_notifs.getNotifications"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/payout_attempts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the payout attempts that have occurred for this account
-         * @description Payout attempts are returned in reverse chronological order -
-         *     the first attempt in the returned array will be the most recent
-         *     payout attempt.
-         */
-        get: operations["personal.getPayoutAttempts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/payouts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the list of payouts for the current user in each currency */
-        get: operations["users.getPayouts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/personal/additional_identity_document/verification_status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the verification status for the front side of the secondary identity document */
-        get: operations["getAdditionalIdentityDocumentVerificationStatus"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/personal/additional_identity_document_back/verification_status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the verification status for the back side of the secondary identity document */
-        get: operations["getAdditionalIdentityDocumentBackVerificationStatus"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/personal/details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get personal details for the local user */
-        get: operations["personal.getDetails"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Set personal details for the local user */
-        patch: operations["personal.setDetails"];
-        trace?: never;
-    };
-    "/api/v1/me/personal/identity_document/verification_status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the verification status for the front side of the primary identity document */
-        get: operations["getIdentityDocumentVerificationStatus"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/personal/identity_document_back/verification_status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the verification status for the back side of the primary identity document */
-        get: operations["getIdentityDocumentBackVerificationStatus"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/personal/stripe_publishable_key": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the details for the Stripe publishable key the user is linked to
-         * @description Returns the Publishable Key for the Stripe Platform
-         *     which the user is linked to.
-         */
-        get: operations["getStripePublishableKeyForUser"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/profile/payout_status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the status of a user's ability to accept payouts
-         * @description This endpoint requires
-         *     the user identified by the `Trustap-User` header to have granted the `profile`
-         *     scope to the client that is performing the request. Offline access is allowed for this endpoint when the user has
-         *     granted the `profile` scope to the client
-         *     that is performing the request.
-         */
-        get: operations["getProfilePayoutStatus"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/stripe_financial_connections/add_account": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Add a new payout method to the current account using a payment method ID */
-        post: operations["personal.addStripeFinancialConnectionsAccount"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/stripe_financial_connections/ownership": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the ownership details from the given SetupIntent using Stripe Financial Connections */
-        get: operations["personal.getStripeFinancialConnectionsOwnership"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/stripe_financial_connections/prepare_account": {
+    "/v2/transactions": {
         parameters: {
             query?: never;
             header?: never;
@@ -453,99 +90,25 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Get a SetupIntent ID and secret for starting a Stripe Financial
-         *     Connections session
+         * Create a new transaction
+         * @description Offline access is allowed for this endpoint.
          */
-        post: operations["personal.prepareStripeFinancialConnectionsAccount"];
+        post: operations["v2_transactions.createTransaction"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/me/transactions": {
+    "/v2/transactions/{transaction_id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * Get online transactions for the logged-in user
-         * @description Transactions are currently sorted by ID.
-         */
-        get: operations["basic.getTransactions"];
-        put?: never;
-        /**
-         * Create a new online transaction
-         * @description A request to this endpoint must be preceded by a call to
-         *     `/charge` with the price of the goods specified in `price`.
-         */
-        post: operations["basic.createTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/transactions/create_and_join": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create a new online transaction with both users
-         * @description This endpoint is an optimised call that allows a transaction to
-         *     be created and joined in a single request. It requires the user
-         *     identified by `join_user_id` to have granted the
-         *     `basic_tx:offline_create_join` scope to the client that is
-         *     performing the request.
-         */
-        post: operations["basic.createAndJoinTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/transactions/create_with_guest_user": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create a new online transaction with both users
-         * @description This endpoint is an optimised call that allows a transaction to
-         *     be created and joined in a single request. It requires the
-         *     online user to have granted the `basic_tx:offline_create_join` scope
-         *     to the client that is performing the request.
-         *     This endpoint allows creating a transaction with both buyer and seller
-         *     as guest or full users, or one party to be guest user and the other full user.
-         */
-        post: operations["basic.createTransactionWithGuestUser"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/verification_method": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Create verification method and message if not available */
-        get: operations["personal.getVerificationMethod"];
+        /** Get a transaction by its ID */
+        get: operations["v2_transactions.getTransaction"];
         put?: never;
         post?: never;
         delete?: never;
@@ -554,7 +117,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/me/verification_session": {
+    "/v2/transactions/{transaction_id}/accept_complaint": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept a complaint for this transaction */
+        post: operations["v2_transactions.acceptComplaintForTransaction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/transactions/{transaction_id}/accept_payment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept the payment for a transaction */
+        post: operations["v2_transactions.acceptPaymentForTransaction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/transactions/{transaction_id}/bank_transfer_details": {
         parameters: {
             query?: never;
             header?: never;
@@ -562,10 +159,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Create verification session and retrieve client secret for it
-         * @description Offline access is allowed for this endpoint when the user has granted the `profile` scope to the client that is performing the request.
+         * Get the bank transfer details for a transaction
+         * @description Get the bank transfer details for a transaction with payment method `bank_transfer`.
          */
-        get: operations["personal.getVerificationSession"];
+        get: operations["v2_transactions.getBankTransferDetails"];
         put?: never;
         post?: never;
         delete?: never;
@@ -574,67 +171,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/me/verification_session_native": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Create verification session for native apps that use Stripe native SDK
-         * @description Creates verification session for native apps that use Stripe native SDK,
-         *     and returns it's `Verification Session ID` with appropriate `Ephemeral Key`.
-         *     Offline access is allowed for this endpoint when the user has
-         *     granted the `profile` scope to the client that is performing the request.
-         */
-        get: operations["personal.getVerificationSessionNative"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/me/verification_status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get verification status of the user
-         * @description Offline access is allowed for this endpoint when the user has granted the `profile` scope to the client that is performing the request.
-         */
-        get: operations["personal.getVerificationStatus"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/notifications/{notification_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a notification by its ID */
-        get: operations["app_notifs.getNotification"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/notifications/{notification_id}/mark_as_read": {
+    "/v2/transactions/{transaction_id}/cancel": {
         parameters: {
             query?: never;
             header?: never;
@@ -643,89 +180,15 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Mark this notification as read */
-        post: operations["app_notifs.markNotificationAsRead"];
+        /** Cancel a transaction */
+        post: operations["v2_transactions.cancelTransaction"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/p2p/batch/transactions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get multiple face-to-face transactions by their IDs
-         * @description This endpoint takes a required `ids` parameter that contains a
-         *     comma-separated list of transaction IDs, and returns the
-         *     transactions corresponding to those IDs. A maximum of 50 IDs may
-         *     be provided, and results are returned in the order specified in
-         *     `ids`, and duplicates are preserved. Transactions that couldn't
-         *     be found will be returned as `null` values in the result array.
-         *     The following example request results in the `200 OK` response
-         *     described below, assuming that the transaction with ID `1990`
-         *     couldn't be found:
-         *
-         *
-         *     ``` http
-         *     https://dev.stage.trustap.com/api/v1/p2p/batch/transactions?ids=1309,609,1990,609
-         *     ```
-         */
-        get: operations["p2p.getTransactionsByIDs"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/charge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the Trustap fee for a face-to-face transaction
-         * @description This returns the Trustap fee, in the `currency`'s smallest unit,
-         *     for a transaction involving goods with the supplied `price`. See
-         *     [the Stripe
-         *     documentation](https://stripe.com/docs/currencies#zero-decimal)
-         *     for more details.
-         */
-        get: operations["p2p.getCharge"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/clients/{client_id}/timelines": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get timelines for the given client */
-        get: operations["p2p_client.getTimelinesForClient"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/listings/create_with_seller": {
+    "/v2/transactions/{transaction_id}/claim": {
         parameters: {
             query?: never;
             header?: never;
@@ -735,46 +198,19 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Creates a transaction with guest seller and returns actions
-         *     page url
+         * Claim a transaction on behalf of a Trustap user
+         * @description This endpoint enables a client to claim a transaction on behalf of a
+         *     Trustap user as a buyer or seller. This endpoint can only be accessed
+         *     by clients.
          */
-        post: operations["p2p.createListingWithSeller"];
+        post: operations["v2_transactions.claimTransaction"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/p2p/me/transactions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get face-to-face transactions for the logged-in user
-         * @description Transactions are currently sorted by ID.
-         */
-        get: operations["p2p.getTransactions"];
-        put?: never;
-        /**
-         * Create a new face-to-face transaction
-         * @description Note that this endpoint is similar to `POST /me/transactions`
-         *     but takes `deposit_price` and `deposit_charge` fields instead of
-         *     the `price` and `charge` fields.
-         *     Offline access is allowed for this endpoint when the user has
-         *     granted the `p2p_tx:offline_create_join` scope to the client
-         *     that is performing the request.
-         */
-        post: operations["p2p.createTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/me/transactions/create_and_join": {
+    "/v2/transactions/{transaction_id}/confirm_delivery": {
         parameters: {
             query?: never;
             header?: never;
@@ -784,345 +220,88 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Create a new face-to-face transaction with both users
-         * @description This endpoint is an optimised call that allows a transaction to
-         *     be created and joined in a single request. It requires the user
-         *     identified by `join_user_id` to have granted the
-         *     `p2p_tx:offline_create_join` scope to the client that is
-         *     performing the request.
-         *
-         *     Note that this endpoint is similar to `POST /me/transactions`
-         *     but takes `deposit_price` and `deposit_charge` fields instead of
-         *     the `price` and `charge` fields.
-         */
-        post: operations["p2p.createAndJoinTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/me/transactions/create_with_guest_user": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create a new face-to-face transaction with both users
-         * @description This endpoint is an optimised call that allows a transaction to
-         *     be created and joined in a single request. It requires the
-         *     online user to have granted the `p2p_tx:offline_create_join` scope
-         *     to the client that is performing the request.
-         *     This endpoint allows creating a transaction with both buyer and seller
-         *     as guest users, or one party to be guest user and the other full user.
-         */
-        post: operations["p2p.createTransactionWithGuestUser"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a face-to-face transaction by its ID */
-        get: operations["p2p.getTransaction"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update the description, currency, price and/or charge of this face-to-face transaction */
-        patch: operations["p2p.updateTransaction"];
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/accept_complaint": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Accept a complaint for this face-to-face transaction */
-        post: operations["p2p.acceptComplaint"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/accept_deposit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Accept the deposit for this face-to-face transaction
-         * @description Offline access is allowed for this endpoint when the user has granted the `p2p_tx:offline_accept_deposit` scope to the client that is performing the request.
-         */
-        post: operations["p2p.acceptDeposit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/accept_deposit_with_guest_seller": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Accept the deposit for this face-to-face transaction as a guest seller */
-        post: operations["p2p.acceptDepositWithGuestSeller"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/bank_transfer_details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the bank transfer details for a face-to-face transaction which payment method is `bank_transfer` */
-        get: operations["p2p.getBankTransferDetails"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/billing_details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get billing details from this p2p transaction */
-        get: operations["p2p.getBillingDetails"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/buyer_details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the details of the buyer from this face-to-face transaction */
-        get: operations["p2p.getBuyerDetails"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/cancel_with_description": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Cancel this face-to-face transaction with a description
-         * @description If a transaction is cancelled after the deposit has been paid
-         *     then the deposit (excluding the Trustap fee) will be returned to
-         *     the buyer.
-         *     Offline access is allowed for this endpoint when the user has
-         *     granted the `p2p_tx:offline_cancel` scope to the client
-         *     that is performing the request.
-         */
-        post: operations["p2p.cancelWithDescription"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/cancel_with_description_with_guest_user": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Cancel this face-to-face transaction with a description with guest user
-         * @description If a transaction is cancelled after the deposit has been paid
-         *     then the deposit (excluding the Trustap fee) will be returned to
-         *     the buyer.
-         */
-        post: operations["p2p.cancelP2PTransactionWithDescriptionAsGuest"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/charge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the Trustap fee for a transaction
-         * @description This returns the Trustap fee, in the `currency`'s smallest unit,
-         *     for a transaction involving goods with the supplied `price`. See
-         *     [the Stripe
-         *     documentation](https://stripe.com/docs/currencies#zero-decimal)
-         *     for more details.
-         */
-        get: operations["p2p.getChargeForTransaction"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/claim_for_buyer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Claim a F2F transaction on behalf of the buyer
-         * @description This endpoint enables a client to claim a face-to-face transaction on behalf of a buyer.
-         *     This endpoint is only accessible for a client.
-         */
-        post: operations["p2p.claimTransactionForBuyer"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/claim_for_seller": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Claim a F2F transaction on behalf of the seller
-         * @description This endpoint enables a client to claim a face-to-face transaction on behalf of a seller.
-         *     This endpoint is only accessible for a client.
-         */
-        post: operations["p2p.claimTransactionForSeller"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/complain": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Submit a complaint for this face-to-face transaction
-         * @description Offline access is allowed for this endpoint when the user has granted the `p2p_tx:offline_complain` scope to the client that is performing the request.
-         */
-        post: operations["p2p.submitComplaint"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/complain_with_guest_buyer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Submit a complaint for this face-to-face transaction with a guest buyer */
-        post: operations["p2p.submitComplaintWithGuestBuyer"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/confirm_delivery": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Confirm delivery for this F2F transaction
+         * Confirm delivery for this transaction
          * @description This endpoint allows the buyer to manually confirm the delivery
          *     of the item in the case that the state of the transaction was
-         *     not updated asynchronously by Trustap.
+         *     not updated asynchronously by Trustap
          */
-        post: operations["p2p.confirmDelivery"];
+        post: operations["v2_transactions.confirmDeliveryForTransaction"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/p2p/transactions/{transaction_id}/confirm_delivery_with_guest_buyer": {
+    "/v2/transactions/{transaction_id}/confirm_handover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm the handover of goods for a transaction */
+        post: operations["v2_transactions.confirmHandoverForTransaction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/transactions/{transaction_id}/end_complaint_period": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** End the complaint period for this transaction */
+        post: operations["v2_transactions.endComplaintPeriodForTransaction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/transactions/{transaction_id}/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set metadata for a transaction */
+        post: operations["v2_transactions.setTransactionMetadata"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/transactions/{transaction_id}/shipping_details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the shipping details of the buyer for a transaction */
+        get: operations["v2_transactions.getShippingDetailsForTransaction"];
+        put?: never;
+        /** Post the shipping details of the buyer for a transaction */
+        post: operations["v2_transactions.setShippingDetailsForTransaction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/transactions/{transaction_id}/submit_complaint": {
         parameters: {
             query?: never;
             header?: never;
@@ -1132,18 +311,19 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Confirm delivery for this F2F transaction
-         * @description This endpoint allows the client to manually confirm the delivery
-         *     on behalf of the guest buyer specified in the header as `Trustap-User`.
+         * Submit a complaint for this transaction
+         * @description A complaint is submitted for problems with transactions after the order
+         *     has been shipped or handover has been confirmed. Before that an order
+         *     issue should be submitted instead.
          */
-        post: operations["p2p.confirmDeliveryWithGuestBuyer"];
+        post: operations["v2_transactions.submitComplaintForTransaction"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/p2p/transactions/{transaction_id}/confirm_handover": {
+    "/v2/transactions/{transaction_id}/submit_order_issue": {
         parameters: {
             query?: never;
             header?: never;
@@ -1153,22 +333,19 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Confirm the handover for this face-to-face transaction
-         * @description Both parties should confirm the handover for a face-to-face
-         *     transaction. The complaints period begins when the seller
-         *     confirms the handover.
-         *     Offline access is allowed for this endpoint when the user has
-         *     granted the `p2p_tx:offline_confirm_handover` scope to the client
-         *     that is performing the request.
+         * Submit an order issue for this transaction
+         * @description An order issue is submitted for problems with transactions after payment
+         *     confirmation and before the order has been shipped or handover has been
+         *     confirmed. After that a complaint should be submitted instead.
          */
-        post: operations["p2p.confirmHandover"];
+        post: operations["v2_transactions.submitOrderIssueForTransaction"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/p2p/transactions/{transaction_id}/confirm_handover_with_guest_user": {
+    "/v2/transactions/{transaction_id}/track": {
         parameters: {
             query?: never;
             header?: never;
@@ -1178,1072 +355,13 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Confirm the handover for this face-to-face transaction with a guest user
-         * @description Both parties should confirm the handover for a face-to-face
-         *     transaction. Full users don't have access to this endpoint.
-         */
-        post: operations["p2p.confirmHandoverWithGuestUserForTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/deposit_stripe_client_secret": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the Stripe client secret for this face-to-face transaction
-         * @description This endpoint is used for the asynchronous payment flow using
-         *     Stripe. The `client_secret` returned from this endpoint should
-         *     be passed to
-         *     [stripe.confirmCardPayment](https://stripe.com/docs/stripe-js/reference#stripe-confirm-card-payment)
-         *     to start the payment process.
-         */
-        get: operations["p2p.getDepositStripeClientSecretForTransaction"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/end_complaint_period": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** End the complaint period for this face-to-face transaction with a full user */
-        post: operations["p2p.endComplaintPeriod"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/end_complaint_period_with_guest_buyer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** End the complaint period for this face-to-face transaction with a guest buyer */
-        post: operations["p2p.endComplaintPeriodWithGuestBuyer"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/join_with_guest": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Join the face-to-face transaction as guest user */
-        post: operations["p2p.joinWithGuest"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/metadata": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get metadata for a face-to-face transaction
-         * @description DEPRECATED
-         *
-         *     Metadata is now always included in the transaction object returned by
-         *     `GET /api/v1/p2p/transactions/{transaction_id}`.
-         */
-        get: operations["p2p.getTransactionMetadata"];
-        put?: never;
-        /** Set metadata for a face-to-face transaction */
-        post: operations["p2p.setTransactionMetadata"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/seller_details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the details of the seller from this face-to-face transaction */
-        get: operations["p2p.getSellerDetailsForTransaction"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/set_deposit_payment_method": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Set deposit payment method for this face-to-face transaction
-         * @description Set deposit payment method for face-to-face transaction. Values can be `card`,
-         *     `bank_transfer`, `p24`, and `fpx`.
-         */
-        post: operations["p2p.setDepositPaymentMethod"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transaction_id}/stripe_publishable_key": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the details for the Stripe publishable key that is in use for this face-to-face transaction
-         * @description Returns the Publishable Key for the Stripe Platform
-         *     which is hosting this transaction.
-         */
-        get: operations["p2p.getStripePublishableKeyForTransaction"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transactionId}/set_price": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Set the total price for this face-to-face transaction
-         * @description `price` is the total price of the item, and thus includes the
-         *     price already paid for the deposit.
-         *
-         *     Note that this endpoint will return a `remainder_too_low`
-         *     response if the difference between the total price and the
-         *     deposit price is too low.
-         *     Offline access is allowed for this endpoint when the user has
-         *     granted the `p2p_tx:offline_set_price` scope to the client
-         *     that is performing the request.
-         */
-        post: operations["setPriceForP2PTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions/{transactionId}/skip_remainder": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Skip the remainder for this face-to-face transaction
-         * @description This will skip the remainder payment of this transaction, and
-         *     the total price of the transaction will not need to be set. Note
-         *     that this must be done before the total price of the transaction
-         *     is set using `/set_price`.
-         */
-        post: operations["skipRemainderForP2PTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions_by_claim_secret/{secret}/claim_as_buyer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Claim F2F transaction as buyer given a claim secret
-         * @description This endpoint allows a full user to claim a transaction
-         *     as buyer given a claim secret.
-         */
-        post: operations["p2p.claimAsBuyer"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions_by_claim_secret/{secret}/claim_as_seller": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Claim a F2F transaction as the seller
-         * @description This endpoint allows a full user to claim a transaction
-         *     as seller given a claim secret.
-         */
-        post: operations["p2p.claimTransactionAsSeller"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions_by_join_code/{join_code}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a face-to-face transaction by its join code */
-        get: operations["p2p.getTransactionByJoinCode"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/p2p/transactions_by_join_code/{join_code}/join": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Join a face-to-face transaction by its join code
-         * @description This endpoint allows a user to join a transaction provided a join code. Offline access is allowed for this endpoint when the user has granted the `p2p_tx:offline_create_join` scope to the client that is performing the request.
-         */
-        post: operations["p2p.joinTransactionByJoinCode"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/shippo_shipping_rates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Get the list of Shippo shipping rates available
-         * @description This returns the list of Shippo shipping rates available
-         *     for the addreses provided i.e sender's address and recipient's
-         *     address.
-         */
-        post: operations["basic.getShippoShippingRates"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/supported_carriers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the supported carriers
-         * @description This returns the carriers that are currently supported for
-         *     automated tracking in the online model. The carrier `name`
-         *     should be shown to users but the `code` should be submitted to
-         *     the `/track` endpoint when submitting tracking details.
-         *     Likewise, when showing a transaction to the user, the `carrier`
-         *     field stored with the transaction should be used to index these
-         *     carriers and show the human-readable name of the carrier to the
-         *     user, if this index is found.
-         */
-        get: operations["getSupportedCarriers"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get an online transaction using a join code */
-        get: operations["basic.getTransactionByJoinCode"];
-        /**
-         * Join an online transaction using a join code
-         * @description A transaction can't be joined using its ID, because only the
-         *     buyer and seller of a transaction can access a transaction using
-         *     its ID.
-         */
-        put: operations["basic.joinTransaction"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get an online transaction by its ID */
-        get: operations["basic.getTransaction"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update the description, currency, price and/or charge of an online transaction */
-        patch: operations["updateTransaction"];
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/accept_complaint": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Accept complaint for this online transaction */
-        post: operations["basic.acceptComplaint"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/accept_payment": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Enable the seller to accept payment for an online transaction
-         * @description This endpoint lets the seller accept payment and is accessible only if the seller
-         *     has granted a feature `require_seller_acceptance`.
-         *     Offline access is allowed for this endpoint when the user has
-         *     granted the `basic_tx:offline_accept_payment` scope to the client
-         *     that is performing the request.
-         */
-        post: operations["basic.acceptPayment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/accept_payment_with_guest_seller": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Enable payment acceptance for the seller using `Trustap-User` for an online transaction
-         * @description This endpoint allows payment acceptance for the seller specified in the
-         *     header as `Trustap-User`.
-         */
-        post: operations["basic.acceptPaymentWithGuestSeller"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/bank_transfer_details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get bank transfer details for an online transaction which payment method is `bank_transfer` */
-        get: operations["basic.getBankTransferDetails"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/billing_details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get billing details from this online transaction */
-        get: operations["basic.getBillingDetails"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/buyer_details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get details of the buyer from this online transaction */
-        get: operations["basic.getBuyerDetails"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Cancel this online transaction
-         * @description Transaction can be cancelled until it's paid or if the feature
-         *     `RequireSellerAcceptance` is present, it can be cancelled
-         *     until it's tracked.
-         *     Offline access is allowed for this endpoint when the user has
-         *     granted the `basic_tx:offline_cancel` scope to the client
-         *     that is performing the request.
-         */
-        post: operations["basic.cancelTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/cancel_with_guest_user": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Cancel this online transaction with a guest user
-         * @description This endpoint cancels a transaction for the user specified in the header
-         *     as `Trustap-User`.
-         *     Transaction can be cancelled until it's paid or if the feature
-         *     `RequireSellerAcceptance` is present, it can be cancelled until it's tracked.
-         */
-        post: operations["basic.cancelTransactionWithGuestUser"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/charge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the Trustap fee for an online transaction
-         * @description This returns the Trustap fee, in the `currency`'s smallest unit,
-         *     for a transaction involving goods with the supplied `price`. See
-         *     [the Stripe
-         *     documentation](https://stripe.com/docs/currencies#zero-decimal)
-         *     for more details.
-         */
-        get: operations["basic.getChargeForTransaction"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/claim_for_buyer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Claim online transaction on behalf of the buyer
-         * @description This endpoint enables a client to claim an online transaction on behalf of a buyer.
-         *     This endpoint is only accessible for a client.
-         */
-        post: operations["basic.claimTransactionForBuyer"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/claim_for_seller": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Claim online transactions on behalf of the seller
-         * @description This endpoint enables a client to claim an online transaction on behalf of a seller.
-         *     This endpoint is only accessible for a client.
-         */
-        post: operations["basic.claimTransactionForSeller"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/complain_with_description": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Submit a detailed complaint for this online transaction */
-        post: operations["basic.submitComplaintWithDescription"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/complain_with_guest_buyer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Submit a detailed complaint for this online transaction for the guest buyer using `Trustap-User` */
-        post: operations["basic.submitComplaintWithGuestBuyer"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/confirm_delivery": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Confirm delivery for this online transaction
-         * @description This endpoint allows the buyer to manually confirm the delivery of the
-         *     item in the case that the state of the transaction was not updated
-         *     asynchronously by Trustap.
-         */
-        post: operations["basic.confirmDelivery"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/confirm_delivery_with_guest_buyer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Confirm delivery for this online transaction
-         * @description This endpoint allows the client to manually confirm the delivery
-         *     on behalf of the guest buyer specified in the header as `Trustap-User`.
-         */
-        post: operations["basic.confirmDeliveryWithGuestBuyer"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/end_complaint_period": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** End the complaint period for this online transaction */
-        post: operations["basic.endComplaintPeriod"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/extend_tracking_deadline": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Extend tracking details submission deadline for this online transaction
-         * @description This endpoint allows the buyer to extend the tracking details
-         *     submission deadline for the seller.
-         */
-        post: operations["basic.extendTrackingDeadlineForTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/generate_shipment_label": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Generate a shipment label for this online transaction's parcel
-         * @description This endpoint returns a PDF containing the label for the
-         *     transaction's parcel. Both sender and recipient details
-         *     have to be submitted before making a call to this endpoint.
-         */
-        post: operations["basic.generateShipmentLabel"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/seller_details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get details of the seller from this online transaction */
-        get: operations["basic.getSellerDetails"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/set_payment_method": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Set the payment method to be used for this online transaction
-         * @description Different payment methods incur different rates, so the payment
-         *     method to be used for a transaction must be set before the
-         *     payment is made. This requires retrieving the charge associated
-         *     with the payment method using
-         *     `GET /transactions/{transaction_id}/charge`, and passing the
-         *     generated charge as a parameter to this endpoint.
-         */
-        post: operations["basic.setPaymentMethodForTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/shipping_details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the shipping details of the buyer from this online transaction */
-        get: operations["basic.getShippingDetailsFromTransaction"];
-        put?: never;
-        /** Post the shipping details of the buyer from this online transaction */
-        post: operations["basic.setShippingDetails"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/shippo_address": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Set the sender's or recipient's address for Shippo shipment */
-        post: operations["basic.setShippoAddress"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/shippo_customs_declaration": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Send a customs declaration for this online transaction's shipment */
-        post: operations["basic.setShippoCustomsDeclaration"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/shippo_parcel_details": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Set Shippo parcel details for this online transaction */
-        post: operations["basic.setShippoParcelDetails"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/shippo_shipping_label": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Shippo generated label details for this online transaction */
-        get: operations["basic.getShippoShippingLabel"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/shippo_shipping_rate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Set Shippo shipping rate for this online transaction
-         * @description Set Shippo shipping rate for the transaction.
-         *     This rate will be used to purchase the Shippo label once the
-         *     transaction is paid. Shipment ID can be provided as an optional parameter,
-         *     depending on the flow which is used to obtain it.
-         */
-        post: operations["basic.setShippoShippingRate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/shippo_shipping_rates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Shippo shipping rates based on the sender's and recipient's address and parcel details */
-        get: operations["basic.getShippoShippingRatesForTransaction"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/stripe_client_secret": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the Stripe client secret for this online transaction
-         * @description This endpoint is used for the asynchronous payment flow using
-         *     Stripe. The `client_secret` returned from this endpoint should
-         *     be passed to
-         *     [stripe.confirmCardPayment](https://stripe.com/docs/stripe-js/reference#stripe-confirm-card-payment)
-         *     to start the payment process.
-         */
-        get: operations["getStripeClientSecretForTransaction"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/stripe_publishable_key": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the details for the Stripe publishable key that is in use for this online transaction
-         * @description Returns the Publishable Key for the Stripe Platform
-         *     which is hosting this transaction.
-         */
-        get: operations["basic.getStripePublishableKeyForTransaction"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/submit_order_issue": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Submit a detailed order issue for this online transaction */
-        post: operations["basic.submitOrderIssue"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/track": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Set postal tracking details for this online transaction
+         * Set postal tracking details for a transaction
          * @description After the tracking information has been submitted then the state
          *     of the transaction will be updated asynchronously by Trustap
          *     once the delivery of the item has been confirmed, at which point
          *     the `delivered` field of the transaction will be set.
-         *     Offline access is allowed for this endpoint when the user has
-         *     granted the `basic_tx:offline_track` scope to the client
-         *     that is performing the request.
          */
-        post: operations["basic.trackTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions/{transaction_id}/track_with_guest_seller": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Set postal tracking details for this online transaction
-         * @description Add tracking details for the guest seller specified
-         *     in the header as `Trustap-User`.
-         */
-        post: operations["basic.trackTransactionWithGuestSeller"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions_by_claim_secret/{secret}/claim_as_buyer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Claim for an online transaction as buyer given a claim secret
-         * @description This endpoint allows a full user to claim for a transaction
-         *     as buyer given a claim secret.
-         */
-        post: operations["basic.claimAsBuyer"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/transactions_by_claim_secret/{secret}/claim_as_seller": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Claim an Online transaction as the seller
-         * @description This endpoint allows a full user to claim a transaction
-         *     as seller given a claim secret.
-         */
-        post: operations["basic.claimTransactionAsSeller"];
+        post: operations["v2_transactions.trackTransaction"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2254,102 +372,150 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        Carrier: {
+        "v2_transactions.BankTransferDetails": {
+            processor: string;
+            stripe?: components["schemas"]["v2_transactions.StripeBankTransferDetails"];
+        };
+        "v2_transactions.Carrier": {
             code: string;
             name: string;
         };
         /**
-         * @example {
-         *       "description": "Item was fake"
-         *     }
-         */
-        Complaint: {
-            description: string;
-        };
-        /**
-         * @example eur
+         * @example other
          * @enum {string}
          */
-        Currency: "aud" | "eur" | "gbp" | "myr" | "pln" | "sek" | "usd" | "huf";
-        /**
-         * @example {
-         *       "previously_submitted": true,
-         *       "status": "verifying"
-         *     }
-         */
-        DocumentVerification: {
-            previously_submitted: boolean;
+        "v2_transactions.ComplaintCategory": "item_not_received" | "item_not_as_described" | "other";
+        "v2_transactions.Events": {
             /**
-             * @description Verification status of the document could be one of the following:
-             *     `due`, `not_due`, `verifying`, `verified`
+             * @description These fields indicate the time that the first instance of the given
+             *     event occurred. Where events can repeat (such as `refunded`),
+             *     duplicate instances can be retrieved from the `by_time` sibling
+             *     property.
              */
-            status: string;
+            by_key: {
+                /** Format: date-time */
+                buyer_handover_confirmed?: string;
+                /** Format: date-time */
+                cancelled?: string;
+                /** Format: date-time */
+                claimed_by_buyer?: string;
+                /** Format: date-time */
+                claimed_by_seller?: string;
+                /** Format: date-time */
+                complaint_period_ended?: string;
+                /** Format: date-time */
+                complaint_submitted?: string;
+                /** Format: date-time */
+                created: string;
+                /** Format: date-time */
+                delivered?: string;
+                /** Format: date-time */
+                funds_released?: string;
+                /** Format: date-time */
+                joined?: string;
+                /** Format: date-time */
+                order_issue_submitted?: string;
+                /** Format: date-time */
+                paid?: string;
+                /** Format: date-time */
+                payment_accepted?: string;
+                /** Format: date-time */
+                refunded?: string;
+                /** Format: date-time */
+                rejected?: string;
+                /** Format: date-time */
+                review_flagged?: string;
+                /** Format: date-time */
+                seller_handover_confirmed?: string;
+                /** Format: date-time */
+                tracked?: string;
+            };
+            by_time: {
+                /** Format: date-time */
+                at: string;
+                /**
+                 * @description This contains the ID of the user that triggered this event. It
+                 *     is not present for events that are triggered by the platform,
+                 *     such as by automated systems.
+                 */
+                by?: string;
+                code: string;
+            }[];
         };
         /**
          * @example {
-         *       "code": "negative_price",
-         *       "error": "`price` cannot be negative"
+         *       "buyer": 78,
+         *       "config": 1,
+         *       "seller": 0
          *     }
          */
-        Error: {
-            code: string;
-            /**
-             * @description A contextual description of the error that occurred. When
-             *     handling errors the `code` field should be used to determine
-             *     the type of error that occurred, as the text in the `error`
-             *     field may change unexpectedly.
-             */
-            error: string;
+        "v2_transactions.Fees": {
+            /** Format: int64 */
+            buyer: number;
+            /** Format: int64 */
+            config: number;
+            /** Format: int64 */
+            seller: number;
         };
         /**
-         * @example single_use
+         * @example other
          * @enum {string}
          */
-        ListingType: "single_use" | "multi_use";
-        /**
-         * @example {
-         *       "description": "Delivery delayed"
-         *     }
-         */
-        OrderIssue: {
-            description: string;
-        };
-        /**
-         * @example {
-         *       "barcode": "ABC123456",
-         *       "barcode_generated": "2019-12-26T14:00:00Z"
-         *     }
-         */
-        PostaHrTracking: {
-            barcode: string;
-            /** Format: date-time */
-            barcode_generated: string;
-        };
-        /**
-         * @example {
-         *       "status": "verifying"
-         *     }
-         */
-        ProfilePayoutStatus: {
+        "v2_transactions.OrderIssueCategory": "item_not_received" | "other";
+        "v2_transactions.Pricing": {
+            /** Format: int64 */
+            amount: number;
             /**
-             * @description Payout status will be one of the following:
-             *     - `complete`: The user has completed their profile and payment information,
-             *     and can accept payouts.
-             *     - `verifying`: The user has submitted profile and payment information, which
-             *     is currently being verified.
-             *     - `due`: The user has not adequately filled out their payment information,
-             *     or may need to update or ammend the provided information before they can
-             *     accept payouts.
+             * Format: int64
+             * @description Represents an additional charge to be paid by the buyer added
+             *     to the transaction total. Use this field to include costs like
+             *     processing fees or local taxes.
+             *     Must be an integer provided in the smallest unit of the currency
+             *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
+             */
+            amount_extra: number;
+            /**
+             * Format: int64
+             * @description Represents an additional charge to be paid by the buyer, seller or client.
+             *     Use this field to include costs like shipping surcharges.
+             *     Must be an integer provided in the smallest unit of the currency
+             *     (for example, 500 for $5.00 USD).
+             */
+            amount_postage?: number;
+            /**
+             * Format: currency
+             * @description The currency of the transaction. Note that, at present, the
+             *     buyer must pay using the transaction's currency and the
+             *     seller will be paid in the transaction's currency. Conversion to this
+             *     currency will happen automatically during payment if the buyer pays
+             *     with a different currency.
+             */
+            currency: string;
+            fees: {
+                /** Format: int64 */
+                buyer: number;
+                /** Format: int64 */
+                buyer_client: number;
+                /** Format: int64 */
+                international_payment?: number;
+                /** Format: int64 */
+                seller: number;
+                /** Format: int64 */
+                seller_client: number;
+            };
+            /**
+             * @description Indicates who is responsible for paying the postage amount.
+             *     Only present if `amount_postage` is provided.
              * @enum {string}
              */
-            status: "complete" | "verifying" | "due";
+            postage_bearer?: "buyer" | "seller" | "client";
         };
-        ShippingDetails: {
-            address: components["schemas"]["ShippingDetailsAddress"];
+        "v2_transactions.ShippingDetails": {
+            address: components["schemas"]["v2_transactions.ShippingDetailsAddress"];
             name: string;
             phone: string;
         };
-        ShippingDetailsAddress: {
+        "v2_transactions.ShippingDetailsAddress": {
             city: string;
             country: string;
             line1: string;
@@ -2357,1081 +523,166 @@ export interface components {
             postal_code: string;
             state: string;
         };
-        ShippoLabelDetails: {
-            label_url: string;
-            /** Format: uri */
-            qr_code_url?: string;
-            tracking_code: string;
-            tracking_url: string;
-        };
-        /**
-         * @example {
-         *       "carrier": "ups",
-         *       "tracking_code": "***"
-         *     }
-         */
-        Tracking: {
-            carrier: string;
-            tracking_code: string;
-        };
-        UserDetails: {
-            email: string;
-            name?: components["schemas"]["basic.UserDetailsName"];
-            phone?: string;
-        };
-        /**
-         * @example {
-         *       "created": "2019-12-25T10:00:00Z",
-         *       "description": "Buyer has joined transaction for 'Soccer ticket'",
-         *       "id": 1990,
-         *       "target": "basic/1309",
-         *       "user_id": "ad5bb99f-85bf-47e1-be0d-15e7541c6ad7"
-         *     }
-         */
-        "app_notifs.Notification": {
-            /** Format: date-time */
-            created: string;
-            description: string;
-            /** Format: int64 */
-            id: number;
-            /** Format: date-time */
-            read?: string;
-            target: string;
-            user_id: string;
-        };
-        "basic.Aba": {
+        /** @enum {string} */
+        "v2_transactions.Status": "created" | "joined" | "rejected" | "cancelled" | "paid" | "review_flagged" | "payment_accepted" | "complaint_submitted" | "complaint_period_ended" | "refunded" | "buyer_handover_confirmed" | "seller_handover_confirmed" | "tracked" | "delivered" | "funds_released" | "claimed_by_buyer" | "claimed_by_seller";
+        "v2_transactions.StripeAba": {
             account_number: string;
             bank_name: string;
             routing_number: string;
         };
-        "basic.BankTransferDetails": {
+        "v2_transactions.StripeBankTransferDetails": {
             /** Format: int64 */
             amount: number;
             currency: string;
-            financial_address: components["schemas"]["basic.FinancialAddress"];
+            financial_address: components["schemas"]["v2_transactions.StripeFinancialAddress"];
             hosted_instructions_url: string;
             reference: string;
         };
-        "basic.BillingDetails": {
-            email: string;
-            name?: string;
-            phone?: string;
+        "v2_transactions.StripeFinancialAddress": {
+            aba?: components["schemas"]["v2_transactions.StripeAba"];
+            iban?: components["schemas"]["v2_transactions.StripeIban"];
+            sort_code?: components["schemas"]["v2_transactions.StripeSortCode"];
+            swift?: components["schemas"]["v2_transactions.StripeSwift"];
         };
-        /**
-         * @example {
-         *       "charge": 340,
-         *       "charge_buyer_client": 0,
-         *       "charge_calculator_version": 5,
-         *       "charge_config": 1,
-         *       "charge_postage_buyer": 1000,
-         *       "charge_seller": 0,
-         *       "charge_seller_client": 0,
-         *       "currency": "eur",
-         *       "payment_method": "card",
-         *       "price": 10000
-         *     }
-         */
-        "basic.Charge": {
-            /**
-             * Format: int64
-             * @description The Trustap fee that the buyer will pay, in the `currency`'s
-             *     smallest unit, for a queried amount. See [the Stripe
-             *     documentation](https://stripe.com/docs/currencies#zero-decimal)
-             *     for more details.
-             */
-            charge: number;
-            /**
-             * Format: int64
-             * @description The portion of the buyer's fee that is attributed to the client,
-             *     in the `currency`'s smallest unit.
-             */
-            charge_buyer_client: number;
-            /**
-             * Format: int64
-             * @description The version of the Trustap charge calculator that was used
-             *     to calculate this charge.
-             *
-             *     This property is present for error-handling purposes. The
-             *     Trustap API allows apps and users to query how much Trustap
-             *     will charge for a transaction before creating a transaction.
-             *     Trustap then requires the queried charge to be provided when
-             *     creating a transaction or listing. At this point the charge
-             *     is calculated again and checked against the provided charge,
-             *     to ensure that the charge calculated for the new resource is
-             *     the same as the one shown to the user. In the unlikely event
-             *     that the Trustap charge calculator used to calculate the
-             *     charge has been updated, then the
-             *     `charge_calculator_version` property will be used to return
-             *     an `incorrect_calc_version` to the API client, which will
-             *     indicate that the `/charge` endpoint should be queried again
-             *     to get the newest charge value.
-             */
-            charge_calculator_version: number;
-            /**
-             * Format: int64
-             * @description The config for which the charge amount is computed.
-             * @default 1
-             */
-            charge_config: number;
-            /**
-             * Format: int64
-             * @description When the transaction handles the generation of postage
-             *     labels, then `charge_postage_buyer` will be added to cover this
-             *     fee together with `charge_postage_client`
-             */
-            charge_postage_buyer?: number;
-            /** Format: int64 */
-            charge_postage_client?: number;
-            /**
-             * Format: int64
-             * @description The Trustap fee that the seller will pay, in the
-             *     `currency`'s smallest unit, for a queried amount. See [the
-             *     Stripe
-             *     documentation](https://stripe.com/docs/currencies#zero-decimal)
-             *     for more details.
-             */
-            charge_seller: number;
-            /**
-             * Format: int64
-             * @description The portion of the seller's fee that is attributed to the client,
-             *     in the `currency`'s smallest unit.
-             */
-            charge_seller_client: number;
-            currency: string;
-            payment_method?: string;
-            /** Format: int64 */
-            price: number;
-        };
-        "basic.ClientTimelines": {
-            /** Format: int64 */
-            complaint_period_seconds?: number;
-            /** Format: int64 */
-            delivery_allowance_seconds?: number;
-            /** Format: int64 */
-            tracking_details_allowance_seconds?: number;
-        };
-        /**
-         * @example cm
-         * @enum {string}
-         */
-        "basic.DistanceUnit": "in" | "cm";
-        /**
-         * @example require_seller_acceptance
-         * @enum {string}
-         */
-        "basic.Feature": "require_seller_acceptance" | "use_hr_post" | "use_shippo";
-        "basic.FinancialAddress": {
-            aba?: components["schemas"]["basic.Aba"];
-            iban?: components["schemas"]["basic.Iban"];
-            sort_code?: components["schemas"]["basic.SortCode"];
-            swift?: components["schemas"]["basic.Swift"];
-        };
-        "basic.Iban": {
+        "v2_transactions.StripeIban": {
             account_holder_name: string;
             bic: string;
             country: string;
             iban: string;
         };
-        /**
-         * @example kg
-         * @enum {string}
-         */
-        "basic.MassUnit": "lb" | "kg";
-        "basic.Refund": {
-            /** Format: int64 */
-            amount: number;
-            id: string;
-            /** Format: date-time */
-            refunded: string;
-        };
-        "basic.Review": {
-            approved?: boolean;
-            /** Format: date-time */
-            finished?: string;
-            outcome_reason?: string;
-            /** Format: date-time */
-            started?: string;
-        };
-        /**
-         * @example buyer
-         * @enum {string}
-         */
-        "basic.Role": "buyer" | "seller";
-        "basic.ServiceLevel": {
-            extended_token: string;
-            name: string;
-            terms: string;
-            token: string;
-        };
-        "basic.ShipmentLabel": {
-            label: string;
-        };
-        "basic.ShippoAddress": {
-            city: string;
-            country: string;
-            email?: string;
-            full_name: string;
-            phone: string;
-            state: string;
-            street_1: string;
-            street_2?: string;
-            zip_code: string;
-        };
-        "basic.ShippoParcel": {
-            distance_unit: string;
-            /** Format: double */
-            height: number;
-            /** Format: double */
-            length: number;
-            mass_unit: string;
-            shipment_date: string;
-            /** Format: double */
-            weight: number;
-            /** Format: double */
-            width: number;
-        };
-        "basic.ShippoRate": {
-            amount: string;
-            amount_local: string;
-            arrives_by?: string;
-            attributes: string[];
-            currency: string;
-            currency_local: string;
-            duration_terms: string;
-            /** Format: int64 */
-            estimated_days: number;
-            id: string;
-            provider: string;
-            provider_image: string;
-            servicelevel: components["schemas"]["basic.ServiceLevel"];
-        };
-        "basic.ShippoShippingRatesResponse": {
-            rates: components["schemas"]["basic.ShippoRate"][];
-            shipment_id: string;
-        };
-        "basic.SortCode": {
+        "v2_transactions.StripeSortCode": {
             account_holder_name: string;
             account_number: string;
             sort_code: string;
         };
-        "basic.Swift": {
+        "v2_transactions.StripeSwift": {
             account_number: string;
             bank_name: string;
             swift_code: string;
         };
-        /**
-         * @example {
-         *       "buyer_id": "feb33a87-3917-4538-9260-127c8a6b5232",
-         *       "charge": 78,
-         *       "charge_buyer_client": 0,
-         *       "charge_seller": 0,
-         *       "charge_seller_client": 0,
-         *       "client_id": "trustap-app",
-         *       "created": "2019-12-25T09:00:00Z",
-         *       "currency": "eur",
-         *       "delivered": "2019-12-25T13:00:00Z",
-         *       "description": "Soccer ticket",
-         *       "funds_released": "2019-12-26T14:00:00Z",
-         *       "id": 1309,
-         *       "is_payment_in_progress": false,
-         *       "joined": "2019-12-25T10:00:00Z",
-         *       "paid": "2019-12-25T11:00:00Z",
-         *       "posta_hr_tracking": {
-         *         "barcode": "ABC12345",
-         *         "barcode_generated": "2019-12-25T12:00:00Z"
-         *       },
-         *       "price": 1234,
-         *       "quantity": 1,
-         *       "seller_id": "ad5bb99f-85bf-47e1-be0d-15e7541c6ad7",
-         *       "status": "funds_released",
-         *       "tracked": "2019-12-25T12:00:00Z",
-         *       "tracking": {
-         *         "carrier": "ups",
-         *         "tracking_code": "***"
-         *       }
-         *     }
-         */
-        "basic.Transaction": {
-            /** Format: int64 */
-            amount_refunded?: number;
-            /** Format: int64 */
-            amount_released?: number;
-            buyer_id?: string;
-            /** Format: date-time */
-            cancelled?: string;
-            /** Format: int64 */
-            charge: number;
-            /** Format: int64 */
-            charge_buyer_client: number;
-            /** Format: int64 */
-            charge_international_payment?: number;
-            /** Format: int64 */
-            charge_postage_buyer?: number;
-            /** Format: int64 */
-            charge_postage_client?: number;
-            /** Format: int64 */
-            charge_seller: number;
-            /** Format: int64 */
-            charge_seller_client: number;
-            /** Format: date-time */
-            claimed_by_buyer?: string;
-            client_id: string;
-            /** Format: date-time */
-            complained?: string;
-            complaint?: components["schemas"]["Complaint"];
-            /** Format: date-time */
-            complaint_period_deadline?: string;
-            /** Format: date-time */
-            complaint_period_ended?: string;
-            /** Format: date-time */
-            created: string;
-            /**
-             * @description The currency of the transaction. Note that, at present, the
-             *     buyer must pay using the transaction's currency and the
-             *     seller will be paid in the transaction's currency.
-             */
-            currency: string;
-            /** Format: date-time */
-            delivered?: string;
-            /** Format: date-time */
-            denied?: string;
-            description: string;
-            /** Format: date-time */
-            funds_released?: string;
-            /** Format: int64 */
-            id: number;
-            /**
-             * Format: absolute_url
-             * @description URL of the image displayed on the Trustap payment page to show the buyer
-             *     the item they are paying for.
-             *     Supports jpg, png, gif, bmp and svg files. Images displayed as a squares.
-             *     Non-square images are cropped
-             */
-            image_url?: string;
-            /**
-             * @description If the transaction is paid via a delayed payment method,
-             *     such as SEPA debit, this field will be `true` until the
-             *     payment has fully succeeded or failed.
-             */
-            is_payment_in_progress: boolean;
-            join_code?: string;
-            /** Format: date-time */
-            joined?: string;
-            /** Format: date-time */
-            listing_creator_accepted?: string;
-            /** Format: date-time */
-            listing_creator_rejected?: string;
-            /**
-             * @description If the transaction is created from a listing then this is
-             *     the ID of that listing; otherwise this property is omitted.
-             */
-            listing_id?: string;
-            listing_type?: components["schemas"]["ListingType"];
-            order_issue?: components["schemas"]["OrderIssue"];
-            /** Format: date-time */
-            order_issue_raised?: string;
-            /** Format: date-time */
-            paid?: string;
-            /** Format: date-time */
-            payment_accepted?: string;
-            /** Format: date-time */
-            payment_refunded?: string;
-            posta_hr_tracking?: components["schemas"]["PostaHrTracking"];
-            /** Format: int64 */
-            price: number;
-            /** Format: int64 */
-            quantity: number;
-            refunds?: components["schemas"]["basic.Refund"][];
-            released_to_seller?: boolean;
-            review?: components["schemas"]["basic.Review"];
-            /** Format: date-time */
-            review_flagged?: string;
-            seller_id?: string;
-            shippo_transaction_id?: string;
-            status: string;
-            /** Format: date-time */
-            tracked?: string;
-            tracking?: components["schemas"]["Tracking"];
-            /** Format: date-time */
-            tracking_details_deadline?: string;
-            /** Format: date-time */
-            tracking_details_window_started?: string;
-        };
-        /**
-         * @example {
-         *       "first": "John",
-         *       "last": "Doe"
-         *     }
-         */
-        "basic.UserDetailsName": {
-            first: string;
-            last: string;
-        };
-        "p2p.Aba": {
-            account_number: string;
-            bank_name: string;
-            routing_number: string;
-        };
-        "p2p.ActionsUrl": {
-            actions_url: string;
-        };
-        "p2p.BankTransferDetails": {
-            /** Format: int64 */
-            amount: number;
-            currency: string;
-            financial_address: components["schemas"]["p2p.FinancialAddress"];
-            hosted_instructions_url: string;
-            reference: string;
-        };
-        "p2p.Cancellation": {
-            reason: string;
-        };
-        /**
-         * @example {
-         *       "charge": 78,
-         *       "charge_buyer_client": 0,
-         *       "charge_calculator_version": 5,
-         *       "charge_config": 1,
-         *       "charge_seller": 0,
-         *       "charge_seller_client": 0,
-         *       "currency": "eur",
-         *       "payment_method": "card",
-         *       "price": 1234,
-         *       "price_extra": 0
-         *     }
-         */
-        "p2p.Charge": {
-            /**
-             * Format: int64
-             * @description The Trustap fee that the buyer will pay, in the `currency`'s
-             *     smallest unit, for a queried amount. See [the Stripe
-             *     documentation](https://stripe.com/docs/currencies#zero-decimal)
-             *     for more details.
-             */
-            charge: number;
-            /**
-             * Format: int64
-             * @description The portion of the buyer's fee that is attributed to the client,
-             *     in the `currency`'s smallest unit.
-             */
-            charge_buyer_client: number;
-            /**
-             * Format: int64
-             * @description The version of the Trustap charge calculator that was used
-             *     to calculate this charge.
-             *
-             *     This property is present for error-handling purposes. The
-             *     Trustap API allows apps and users to query how much Trustap
-             *     will charge for a transaction before creating a transaction.
-             *     Trustap then requires the queried charge to be provided when
-             *     creating a transaction or listing. At this point the charge
-             *     is calculated again and checked against the provided charge,
-             *     to ensure that the charge calculated for the new resource is
-             *     the same as the one shown to the user. In the unlikely event
-             *     that the Trustap charge calculator used to calculate the
-             *     charge has been updated, then the
-             *     `charge_calculator_version` property will be used to return
-             *     an `incorrect_calc_version` to the API client, which will
-             *     indicate that the `/charge` endpoint should be queried again
-             *     to get the newest charge value.
-             */
-            charge_calculator_version: number;
-            /**
-             * Format: int64
-             * @default 1
-             */
-            charge_config: number;
-            /**
-             * Format: int64
-             * @description The Trustap fee that the seller will pay, in the
-             *     `currency`'s smallest unit, for a queried amount. See [the
-             *     Stripe
-             *     documentation](https://stripe.com/docs/currencies#zero-decimal)
-             *     for more details.
-             */
-            charge_seller: number;
-            /**
-             * Format: int64
-             * @description The portion of the seller's fee that is attributed to the client,
-             *     in the `currency`'s smallest unit.
-             */
-            charge_seller_client: number;
-            currency: string;
-            payment_method?: string;
-            /** Format: int64 */
-            price: number;
-            /**
-             * Format: int64
-             * @description Represents an additional charge to be paid by the buyer added
-             *     to the transaction total. Use this field to include costs like
-             *     processing fees, local taxes, or shipping surcharges.
-             *     Must be an integer provided in the smallest unit of the currency
-             *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
-             */
-            price_extra?: number;
-            /**
-             * Format: int64
-             * @description Represents the postage/shipping cost to be paid by the buyer.
-             *     Must be an integer provided in the smallest unit of the currency
-             *     (for example, 500 for $5.00 USD).
-             */
-            price_postage?: number;
-        };
-        "p2p.ClientTimelines": {
-            /** Format: int64 */
-            complaint_period_seconds?: number;
-        };
-        /**
-         * @example {
-         *       "category": "other",
-         *       "description": "Item was fake"
-         *     }
-         */
-        "p2p.Complaint": {
-            /** Format: date-time */
-            accepted?: string;
-            category: components["schemas"]["p2p.ComplaintCategory"];
-            description: string;
-        };
-        /**
-         * @example other
-         * @enum {string}
-         */
-        "p2p.ComplaintCategory": "item_not_received" | "item_not_as_described" | "other";
-        /**
-         * @example eur
-         * @enum {string}
-         */
-        "p2p.Currency": "aud" | "eur" | "gbp" | "myr" | "pln" | "sek" | "usd" | "huf" | "aed" | "brl" | "cad" | "chf" | "dkk" | "rsd" | "czk";
-        "p2p.DepositFeeMultiplier": {
-            /** Format: double */
-            fee_multiplier: number;
-        };
-        /**
-         * @example {
-         *       "currency": "eur",
-         *       "deposit_charge": 2000,
-         *       "deposit_charge_seller": 0,
-         *       "deposit_price": 200000,
-         *       "deposit_price_extra": 500,
-         *       "payment_method": "bank_transfer"
-         *     }
-         */
-        "p2p.DepositPaymentMethod": {
-            /** Format: int64 */
-            charge_config?: number;
-            currency: string;
-            /** Format: int64 */
-            deposit_charge: number;
-            /** Format: int64 */
-            deposit_charge_seller: number;
-            /** Format: int64 */
-            deposit_price: number;
-            /** Format: int64 */
-            deposit_price_extra?: number;
-            /** Format: int64 */
-            deposit_price_postage?: number;
-            payment_method: string;
-        };
-        "p2p.FinancialAddress": {
-            aba?: components["schemas"]["p2p.Aba"];
-            iban?: components["schemas"]["p2p.Iban"];
-            sort_code?: components["schemas"]["p2p.SortCode"];
-            swift?: components["schemas"]["p2p.Swift"];
-        };
-        "p2p.Iban": {
-            account_holder_name: string;
-            bic: string;
-            country: string;
-            iban: string;
-        };
-        /**
-         * @example single_use
-         * @enum {string}
-         */
-        "p2p.ListingType": "single_use" | "multi_use";
-        /**
-         * @example {
-         *       "category": "other",
-         *       "description": "Item was not delivered"
-         *     }
-         */
-        "p2p.OrderIssue": {
-            category: components["schemas"]["p2p.OrderIssueCategory"];
-            description: string;
-        };
-        /**
-         * @example other
-         * @enum {string}
-         */
-        "p2p.OrderIssueCategory": "item_not_received" | "other";
-        /**
-         * @example {
-         *       "charge": 78,
-         *       "charge_buyer_client": 0,
-         *       "charge_buyer_service": 78,
-         *       "charge_seller": 0,
-         *       "charge_seller_client": 0,
-         *       "charge_seller_service": 0,
-         *       "extra_processing_charge": 0,
-         *       "postage_processing_charge": 0,
-         *       "price": 1234,
-         *       "price_extra": 0
-         *     }
-         */
-        "p2p.Pricing": {
-            /**
-             * Format: int64
-             * @description The total charge of the transaction paid by the buyer.
-             *     This is the sum of `charge_buyer_service` + `charge_buyer_client`.
-             */
-            charge: number;
-            /**
-             * Format: int64
-             * @description Portion of the charge paid by the buyer that is collected as commission for the customer.
-             */
-            charge_buyer_client: number;
-            /**
-             * Format: int64
-             * @description Portion of the charge that has been paid by the buyer that is collected as the Trustap fee.
-             */
-            charge_buyer_service: number;
-            /**
-             * Format: int64
-             * @description This charge is added to the seller charge if the payment method used in a transaction is from a different economic region to the seller.
-             */
-            charge_international_payment?: number;
-            /**
-             * Format: int64
-             * @description Portion of the charge paid by the seller.
-             *     This is the sum of `charge_seller_client` + `charge_seller_service` + `charge_international_payment`.
-             */
-            charge_seller: number;
-            /**
-             * Format: int64
-             * @description Portion of the charge deducted from the seller's payout that that is collected as commission for the platform.
-             */
-            charge_seller_client: number;
-            /**
-             * Format: int64
-             * @description Portion of the charge paid by the seller that is collected as the Trustap fee.
-             */
-            charge_seller_service: number;
-            deposit_fee_multiplier?: components["schemas"]["p2p.DepositFeeMultiplier"];
-            /**
-             * Format: int64
-             * @description Fee collected to cover the processing costs associated with `price_extra`.
-             *     This charge is configurable in the Trustap Dashboard and is paid by either the client or the seller.
-             */
-            extra_processing_charge: number;
-            /**
-             * @description Indicates who is responsible for paying the postage price.
-             *     Only present if `price_postage` is provided.
-             * @enum {string}
-             */
-            postage_bearer?: "buyer" | "seller" | "client";
-            /**
-             * Format: int64
-             * @description Fee collected to cover the processing costs associated with `price_postage`.
-             *     This charge is configurable in the Trustap Dashboard and is paid by either the client or the seller.
-             */
-            postage_processing_charge?: number;
-            /**
-             * Format: int64
-             * @description The base price of the item or service in the transaction.
-             */
-            price: number;
-            /**
-             * Format: int64
-             * @description This field adds an additional cost to the transaction.
-             *     Use it to charge a buyer for things like tax or fulfillment costs.
-             *     The `price_extra` field is separate from the `price`` field. This separation displays the additional cost apart from the base price on the Trustap payment page.
-             *     It also helps clients track the breakdown of charges.
-             */
-            price_extra: number;
-            /**
-             * Format: int64
-             * @description This field adds an additional cost to the transaction.
-             *     Use it to charge a buyer for things like shipping costs.
-             *     The `price_postage` field is separate from the `price`` field. This separation displays the additional cost apart from the base price on the Trustap payment page.
-             *     It also helps clients track the breakdown of charges.
-             */
-            price_postage?: number;
-        };
-        "p2p.Refund": {
-            /** Format: int64 */
-            amount: number;
-            id: string;
-            /** Format: date-time */
-            refunded: string;
-        };
-        "p2p.Review": {
-            approved?: boolean;
-            /** Format: date-time */
-            finished?: string;
-            outcome_reason?: string;
-            /** Format: date-time */
-            started?: string;
-        };
-        /**
-         * @example buyer
-         * @enum {string}
-         */
-        "p2p.Role": "buyer" | "seller";
-        "p2p.SortCode": {
-            account_holder_name: string;
-            account_number: string;
-            sort_code: string;
-        };
-        "p2p.Swift": {
-            account_number: string;
-            bank_name: string;
-            swift_code: string;
-        };
-        /**
-         * @example {
-         *       "carrier": "ups",
-         *       "tracking_code": "***"
-         *     }
-         */
-        "p2p.Tracking": {
+        "v2_transactions.Tracking": {
             carrier: string;
             tracking_code: string;
         };
         /**
          * @example {
-         *       "buyer_handover_confirmed": "2019-12-25T16:00:00Z",
-         *       "buyer_id": "feb33a87-3917-4538-9260-127c8a6b5232",
-         *       "charge_config": 1,
-         *       "client_id": "trustap-app",
-         *       "created": "2019-12-25T09:00:00Z",
-         *       "currency": "eur",
-         *       "deposit_accepted": "2019-12-25T12:00:00Z",
-         *       "deposit_paid": "2019-12-25T11:00:00Z",
-         *       "deposit_pricing": {
-         *         "charge": 78,
-         *         "charge_buyer_client": 0,
-         *         "charge_buyer_service": 78,
-         *         "charge_seller": 0,
-         *         "charge_seller_client": 0,
-         *         "charge_seller_service": 0,
-         *         "extra_processing_charge": 0,
-         *         "price": 1234,
-         *         "price_extra": 0
+         *       "buyer": {
+         *         "id": "9097",
+         *         "is_guest": false
+         *       },
+         *       "client_id": "1234",
+         *       "deadlines": {
+         *         "complaints": "2019-12-25T15:00:00Z"
          *       },
          *       "description": "Soccer ticket",
-         *       "funds_released": "2019-12-25T17:00:00Z",
-         *       "id": 1309,
-         *       "is_deposit_payment_in_progress": false,
-         *       "is_remainder_payment_in_progress": false,
-         *       "joined": "2019-12-25T10:00:00Z",
-         *       "priced": "2019-12-25T13:00:00Z",
+         *       "events": {
+         *         "by_key": {
+         *           "buyer_handover_confirmed": "2019-12-25T16:00:00Z",
+         *           "created": "2019-12-25T09:00:00Z",
+         *           "funds_released": "2019-12-25T17:00:00Z",
+         *           "joined": "2019-12-25T10:00:00Z",
+         *           "paid": "2019-12-25T11:00:00Z",
+         *           "payment_accepted": "2019-12-25T12:00:00Z",
+         *           "seller_handover_confirmed": "2019-12-25T15:00:00Z"
+         *         },
+         *         "by_time": []
+         *       },
+         *       "funds_release": {
+         *         "refunds": [],
+         *         "released_to_seller": false
+         *       },
+         *       "id": "tx_2106",
          *       "pricing": {
-         *         "charge": 190,
-         *         "charge_buyer_client": 0,
-         *         "charge_buyer_service": 190,
-         *         "charge_seller": 0,
-         *         "charge_seller_client": 0,
-         *         "charge_seller_service": 0,
-         *         "extra_processing_charge": 0,
-         *         "price": 5000,
-         *         "price_extra": 0
+         *         "amount": 1000,
+         *         "amount_extra": 0,
+         *         "currency": "eur",
+         *         "fees": {
+         *           "buyer": 110,
+         *           "buyer_client": 10,
+         *           "international_payment": 20,
+         *           "seller": 0,
+         *           "seller_client": 5
+         *         }
          *       },
-         *       "quantity": 1,
-         *       "remainder_paid": "2019-12-25T14:00:00Z",
-         *       "seller_handover_confirmed": "2019-12-25T15:00:00Z",
-         *       "seller_id": "ad5bb99f-85bf-47e1-be0d-15e7541c6ad7",
-         *       "skip_remainder": false,
+         *       "review": {
+         *         "approved": true,
+         *         "outcome_reason": "Not fraudulent."
+         *       },
+         *       "seller": {
+         *         "id": "9790",
+         *         "is_guest": false
+         *       },
          *       "status": "funds_released"
          *     }
          */
-        "p2p.Transaction": {
-            /** Format: int64 */
-            amount_refunded?: number;
-            /** Format: int64 */
-            amount_released?: number;
-            /** Format: date-time */
-            buyer_handover_confirmed?: string;
-            buyer_id?: string;
-            buyer_is_guest?: boolean;
-            cancellation?: components["schemas"]["p2p.Cancellation"];
-            /** Format: date-time */
-            cancelled?: string;
-            /** Format: int64 */
-            charge_config?: number;
-            /** Format: date-time */
-            claimed_by_buyer?: string;
-            /** Format: date-time */
-            claimed_by_seller?: string;
-            /** Format: int64 */
-            client_accrual_net?: number;
+        "v2_transactions.Transaction": {
+            buyer?: components["schemas"]["v2_transactions.User"];
+            cancellation?: {
+                description: string;
+            };
             client_id: string;
-            /** Format: date-time */
-            complained?: string;
-            complaint?: components["schemas"]["p2p.Complaint"];
-            /** Format: date-time */
-            complaint_period_deadline?: string;
-            /** Format: date-time */
-            complaint_period_ended?: string;
+            complaint?: {
+                /** Format: date-time */
+                accepted?: string;
+                category: components["schemas"]["v2_transactions.ComplaintCategory"];
+                description: string;
+            };
             contains_shipping?: boolean;
-            /** Format: date-time */
-            created: string;
             /**
-             * @description The currency of the transaction. Note that, at present, the
-             *     buyer must pay using the transaction's currency and the
-             *     seller will be paid in the transaction's currency.
+             * @description This property contains all possible actions that have associated
+             *     deadlines for completion. Actions with `null` do not have deadlines
+             *     currently pending.
              */
-            currency: string;
-            /** Format: date-time */
-            delivered?: string;
-            /** Format: date-time */
-            deposit_accepted?: string;
-            /** Format: date-time */
-            deposit_paid?: string;
-            deposit_pricing: components["schemas"]["p2p.Pricing"];
-            /** Format: date-time */
-            deposit_refunded?: string;
-            deposit_review?: components["schemas"]["p2p.Review"];
-            /** Format: date-time */
-            deposit_review_flagged?: string;
+            deadlines: {
+                /** Format: date-time */
+                complaints?: string | null;
+            };
             description: string;
-            /** Format: date-time */
-            funds_released?: string;
-            /** Format: int64 */
-            id: number;
-            /**
-             * Format: absolute_url
-             * @description URL of the image displayed on the Trustap payment page to show the buyer
-             *     the item they are paying for.
-             *     Supports jpg, png, gif, bmp and svg files. Images displayed as a squares.
-             *     Non-square images are cropped
-             */
-            image_url?: string;
-            /**
-             * @description If the deposit is paid via a delayed payment method,
-             *     such as SEPA debit, this field will be `true` until the
-             *     payment has fully succeeded or failed.
-             */
-            is_deposit_payment_in_progress: boolean;
-            /**
-             * @description If the remainder is paid via a delayed payment method,
-             *     such as SEPA debit, this field will be `true` until the
-             *     payment has fully succeeded or failed.
-             */
-            is_remainder_payment_in_progress: boolean;
+            events: components["schemas"]["v2_transactions.Events"];
+            funds_release?: {
+                refunds: {
+                    /** Format: int64 */
+                    amount: number;
+                    id: string;
+                }[];
+                released_to_seller: boolean;
+            };
+            /** Format: type_id */
+            id: string;
             join_code?: string;
-            /** Format: date-time */
-            joined?: string;
-            /**
-             * @description If the transaction is created from a listing then this is
-             *     the ID of that listing; otherwise this property is omitted.
-             */
-            listing_id?: string;
-            listing_type?: components["schemas"]["p2p.ListingType"];
-            /**
-             * @description Arbitrary key-value string pairs, which allows the addition of extra
-             *     information to transactions outside of the prescribed fields. For
-             *     example, when a transaction is used to power a product on an ecommerce
-             *     marketplace, the the product ID can be added to the transaction for
-             *     reference.
-             */
+            /** @description Arbitrary key-value string pairs for adding extra information to transactions. */
             metadata?: {
                 [key: string]: unknown;
             };
-            order_issue?: components["schemas"]["p2p.OrderIssue"];
-            /** Format: date-time */
-            order_issue_raised?: string;
-            payout_id?: string;
-            /** Format: date-time */
-            priced?: string;
-            pricing?: components["schemas"]["p2p.Pricing"];
-            /** Format: int64 */
-            quantity: number;
-            /** Format: date-time */
-            refunded?: string;
-            refunds?: components["schemas"]["p2p.Refund"][];
-            /** Format: date-time */
-            rejected?: string;
-            released_to_seller?: boolean;
-            /** Format: date-time */
-            remainder_paid?: string;
-            remainder_review?: components["schemas"]["p2p.Review"];
-            /** Format: date-time */
-            remainder_review_flagged?: string;
-            /** Format: date-time */
-            remainder_skipped?: string;
-            /** Format: date-time */
-            seller_handover_confirmed?: string;
-            seller_id?: string;
-            seller_is_guest?: boolean;
-            seller_phone_number?: string;
-            /**
-             * @description If `skip_remainder` is `true` then this transaction will
-             *     move to the "confirm handover" step after the deposit has
-             *     been accepted.
-             */
-            skip_remainder: boolean;
-            status: string;
-            /** Format: date-time */
-            tracked?: string;
-            tracking?: components["schemas"]["p2p.Tracking"];
-        };
-        "p2p.UserDetails": {
-            email: string;
-            /**
-             * @example {
-             *       "first": "John",
-             *       "last": "Doe"
-             *     }
-             */
-            name?: {
-                first: string;
-                last: string;
+            order_issue?: {
+                category: components["schemas"]["v2_transactions.OrderIssueCategory"];
+                description: string;
             };
-            phone?: string;
-        };
-        "personal.BankAccount": {
-            bank_name: string;
-            country: string;
-            currency_alpha_2: string;
-            last4: string;
-            routing?: string;
-        };
-        "personal.BankDetails": {
-            account_number: string;
-            country_code: string;
-            currency: string;
-            routing_number?: string;
-        };
-        "personal.Card": {
-            last4: string;
-            /** Format: int64 */
-            month: number;
-            /** Format: int64 */
-            year: number;
-        };
-        "personal.DateValidation": {
-            max_date?: number;
-            max_day?: number;
-            max_month?: number;
-            max_year?: number;
-            min_day?: number;
-            min_month?: number;
-            min_year?: number;
-        };
-        "personal.DebitAccount": {
-            bank_account: components["schemas"]["personal.BankAccount"];
-            card: components["schemas"]["personal.Card"];
-        };
-        "personal.Details": {
-            address_city: components["schemas"]["personal.VerifiableString"];
-            address_country: components["schemas"]["personal.VerifiableString"];
-            address_line1: components["schemas"]["personal.VerifiableString"];
-            address_line2: components["schemas"]["personal.VerifiableString"];
-            address_postal_code: components["schemas"]["personal.VerifiableString"];
-            address_state: components["schemas"]["personal.VerifiableString"];
-            dob: components["schemas"]["personal.VerifiableDate"];
-            id_number: components["schemas"]["personal.VerifiableIdNumber"];
-            name_first: components["schemas"]["personal.VerifiableString"];
-            name_last: components["schemas"]["personal.VerifiableString"];
-            phone: components["schemas"]["personal.VerifiablePhone"];
-        };
-        /** @enum {string} */
-        "personal.FieldType": "date" | "id_number" | "phone" | "string";
-        "personal.InstantPayoutBalance": {
-            /** Format: int64 */
-            amount: number;
-            currency: string;
-        };
-        "personal.InvalidReason": {
-            code: string;
-            /** @description An English-language description of the error. */
-            description: string;
-        };
-        "personal.PayoutAttempt": {
-            /** Format: int64 */
-            amount: number;
-            /** Format: int64 */
-            arrival_date: number;
-            /** Format: int64 */
-            created_date: number;
-            /** @enum {string} */
-            failure_code?: "account_closed" | "account_frozen" | "bank_account_restricted" | "bank_ownership_changed" | "could_not_process" | "debit_not_authorized" | "declined" | "insufficient_funds" | "invalid_account_number" | "incorrect_account_holder_name" | "incorrect_account_holder_address" | "incorrect_account_holder_tax_id" | "invalid_currency" | "no_account" | "unsupported_card";
-            /** @enum {string} */
-            status: "paid" | "pending" | "in_transit" | "canceled" | "failed";
-        };
-        "personal.Validation": {
-            cannot_unset?: boolean;
-            cannot_update?: boolean;
-            max_length?: number;
-            min_length?: number;
-        };
-        "personal.VerifiableDate": {
-            invalid_reason?: components["schemas"]["personal.InvalidReason"];
-            required_now: boolean;
-            status: components["schemas"]["personal.VerificationStatus"];
-            type: components["schemas"]["personal.FieldType"];
-            validation: components["schemas"]["personal.DateValidation"];
-            value: {
-                day: number;
-                month: number;
-                year: number;
+            /** @description URL to the actions page where the buyer can pay the deposit. */
+            payment_link?: string;
+            pricing: components["schemas"]["v2_transactions.Pricing"];
+            review?: {
+                approved: boolean;
+                outcome_reason: string;
             };
+            seller?: components["schemas"]["v2_transactions.User"];
+            status: components["schemas"]["v2_transactions.Status"];
+            tracking?: components["schemas"]["v2_transactions.Tracking"];
         };
-        "personal.VerifiableIdNumber": {
-            invalid_reason?: components["schemas"]["personal.InvalidReason"];
-            required_now: boolean;
-            status: components["schemas"]["personal.VerificationStatus"];
-            type: components["schemas"]["personal.FieldType"];
-            validation: {
-                max_length?: number;
-                min_length?: number;
-            };
-            value: {
-                provided: boolean;
-            };
+        /**
+         * @example {
+         *       "id": "9097",
+         *       "is_guest": false
+         *     }
+         */
+        "v2_transactions.User": {
+            id: string;
+            is_guest: boolean;
         };
-        "personal.VerifiablePhone": {
-            invalid_reason?: components["schemas"]["personal.InvalidReason"];
-            required_now: boolean;
-            status: components["schemas"]["personal.VerificationStatus"];
-            type: components["schemas"]["personal.FieldType"];
-            validation: {
-                number_min_length?: number;
-            };
-            value: {
-                dial_code: string;
-                /** @description This field is mostly non-functional, but is instead used to render the phone number for the user. This field is necessary because different countries may use the same dial code (for example, the US and Canada). */
-                dial_code_country: string;
-                number: string;
-            };
-        };
-        "personal.VerifiableString": {
-            invalid_reason?: components["schemas"]["personal.InvalidReason"];
-            required_now: boolean;
-            status: components["schemas"]["personal.VerificationStatus"];
-            type: components["schemas"]["personal.FieldType"];
-            validation: components["schemas"]["personal.Validation"];
-            value: string;
-        };
-        /** @description Optional error information if there was an error in the verification session. */
-        "personal.VerificationSessionLastError": {
-            /** @enum {string} */
-            code: "abandoned" | "consent_declined" | "country_not_supported" | "device_not_supported" | "document_expired" | "document_type_not_supported" | "document_unverified_other" | "email_unverified_other" | "email_verification_declined" | "id_number_insufficient_document_data" | "id_number_mismatch" | "id_number_unverified_other" | "phone_unverified_other" | "phone_verification_declined" | "selfie_document_missing_photo" | "selfie_face_mismatch" | "selfie_manipulated" | "selfie_unverified_other" | "under_supported_age";
-            /** @description Explanation or description related to the error code. */
-            reason: string;
-        };
-        /** @enum {string} */
-        "personal.VerificationStatus": "unset" | "invalid" | "verifying" | "verified_and_verifying" | "verified" | "set";
-        "users.Balances": {
-            available: {
-                /** Format: int64 */
-                amount: number;
-                currency: string;
-            }[];
-        };
-        "users.Features": {
-            instant_payouts_enabled?: boolean;
+        "v2_users.TosAcceptance": {
+            ip: string;
+            /** Format: int64 */
+            unix_timestamp: number;
         };
         /**
          * @example {
@@ -3440,7 +691,7 @@ export interface components {
          *       "id": "1-feb33a87-3917-4538-9260-127c8a6b5232"
          *     }
          */
-        "users.GuestUser": {
+        "v2_users.User": {
             /** Format: date-time */
             created_at: string;
             /** Format: date-time */
@@ -3448,63 +699,18 @@ export interface components {
             email: string;
             id: string;
         };
-        "users.PayoutItem": {
-            /** Format: int64 */
-            amount: number;
-            /** Format: date-time */
-            arriving: string;
-            currency: string;
-            /** Format: date-time */
-            initiated: string;
-            status: string;
-        };
-        "users.Payouts": {
-            payouts: components["schemas"]["users.PayoutItem"][];
-        };
-        "users.TosAcceptance": {
-            ip: string;
-            /** Format: int64 */
-            unix_timestamp: number;
-        };
     };
     responses: never;
     parameters: never;
-    requestBodies: {
-        "p2p.submitComplaintSubmitComplaintBody": {
-            content: {
-                "application/json": {
-                    category?: components["schemas"]["p2p.ComplaintCategory"];
-                    description: string;
-                };
-            };
-        };
-        "basic.submitComplaintWithDescriptionDescriptionBody": {
-            content: {
-                "application/json": {
-                    description: string;
-                };
-            };
-        };
-        "basic.trackTransactionTrackTransactionBody": {
-            content: {
-                "application/json": {
-                    carrier: string;
-                    tracking_code: string;
-                };
-            };
-        };
-    };
+    requestBodies: never;
     headers: never;
     pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    "basic.getTransactionsByIds": {
+    "v2_transactions.getSupportedCarriers": {
         parameters: {
-            query: {
-                /** @description A comma-separated list of transaction IDs */
-                ids: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -3517,56 +723,50 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["basic.Transaction"][];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `ids_missing`
-             *       * `invalid_id`
-             *       * `too_many_ids`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
+                    "application/json": components["schemas"]["v2_transactions.Carrier"][];
                 };
             };
         };
     };
-    "basic.getCharge": {
+    "v2_transactions.getFees": {
         parameters: {
             query: {
-                /** @description The currency that the `price` is specified in. */
+                /** @description The currency that the `amount` is specified in. */
                 currency: string;
                 /**
                  * @description The price of the goods being sold in this transaction, in
                  *     the `currency`'s smallest unit. For example, if a trading
                  *     card is being sold for $12.34 (with `currency` as `usd`),
-                 *     then the request for the charge for this transaction would
-                 *     be `/charge?price=1234&currency=usd`.
+                 *     then the request for the fees for this transaction would
+                 *     be `/v2/fees?amount=1234&currency=usd`.
                  */
-                price: number;
-                /** @description Deprecated. */
-                quantity?: number;
+                amount: number;
+                /**
+                 * @description Represents an additional charge to be paid by the buyer added
+                 *     to the transaction total. Use this field to include costs like
+                 *     processing fees or local taxes.
+                 *     Must be an integer provided in the smallest unit of the currency
+                 *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
+                 */
+                amount_extra?: number;
+                /**
+                 * @description Represents an additional charge to be paid by the buyer, seller or client.
+                 *     Use this field to include costs like shipping surcharges.
+                 *     Must be an integer provided in the smallest unit of the currency
+                 *     (for example, 500 for $5.00 USD).
+                 */
+                amount_postage?: number;
                 /**
                  * @description The payment method that will be used to pay for the
                  *     transaction. This is necessary because different payment
                  *     methods may result in different fees.
+                 *     Supports `card` and `bank_transfer`.
                  *
                  *     The default value is `card`.
                  */
                 payment_method?: string;
-                use_hr_post?: boolean;
-                /** @description The custom `postage_fee` for the transaction. */
-                postage_fee?: number;
-                /** @description The charge config for which the charge amount is computed. */
-                charge_config?: number;
+                /** @description The fee config for which the fees are computed. */
+                fees_config?: number;
             };
             header?: never;
             path?: never;
@@ -3580,82 +780,29 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["basic.Charge"];
+                    "application/json": components["schemas"]["v2_transactions.Fees"];
                 };
             };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `currency_missing`
-             *       * `invalid_price`
-             *       * `negative_price`
-             *       * `price_too_low`
-             *       * `unsupported_currency`
-             *       * `invalid_charge_config`
-             *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
-             */
+            /** @description Bad Request */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Error"];
+                    "application/json": {
+                        /**
+                         * @description * `unsupported_combination`: The provided payment method,
+                         *     fee config and currency combination isn't supported.
+                         * @enum {string}
+                         */
+                        code: "currency_missing" | "invalid_amount" | "negative_amount" | "amount_too_low" | "unsupported_currency" | "invalid_fee_config" | "unsupported_combination";
+                        message: string;
+                    };
                 };
             };
         };
     };
-    "client.getSupportedRegistrationCountries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": string[];
-                };
-            };
-        };
-    };
-    "basic_client.getTimelinesForClient": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                client_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.ClientTimelines"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "users.createGuestUser": {
+    "v2_users.createGuestUser": {
         parameters: {
             query?: never;
             header?: never;
@@ -3665,11 +812,11 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    country_code?: string;
+                    country_code: string;
                     email: string;
                     first_name?: string;
                     last_name?: string;
-                    tos_acceptance: components["schemas"]["users.TosAcceptance"];
+                    tos_acceptance: components["schemas"]["v2_users.TosAcceptance"];
                 };
             };
         };
@@ -3680,73 +827,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["users.GuestUser"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *       `code` can be one of the following:
-             *         * `email_missing`
-             *         * `tos_acceptance_ip_missing`
-             *         * `invalid_country_code`
-             *         * `invalid_email`
-             *         * `invalid_tos_acceptance_date`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "personal.getAccountSession": {
-        parameters: {
-            query?: never;
-            header?: {
-                /**
-                 * @description Required in client flows, where you make API calls on behalf of another Trustap user.
-                 *     Can be used with managed users ID and client API key.
-                 */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        client_secret: string;
-                    };
-                };
-            };
-        };
-    };
-    "users.getBalances": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["users.Balances"];
+                    "application/json": components["schemas"]["v2_users.User"];
                 };
             };
             /** @description Bad Request */
@@ -3755,1312 +836,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "personal.getDebitAccount": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["personal.DebitAccount"];
-                };
-            };
-        };
-    };
-    "personal.setDebitAccount": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    bank_details?: components["schemas"]["personal.BankDetails"];
-                    bank_token?: string;
-                    card_details?: string;
-                    /** @enum {string} */
-                    type: "bank" | "bank_token" | "card";
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["personal.DebitAccount"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `routing_number_invalid`: The routing number is invalid.
-             *       * `account_number_invalid`: The account number is invalid.
-             *       * `parameter_missing`: Parameter is missing.
-             *       * `invalid_account_type`: The given debit account type is invalid.
-             *       * `bank_account_unusable`: The bank account is unusable.
-             *       * `bank_details_missing`: The bank details are missing.
-             *       * `bank_token_missing`: The bank token is missing.
-             *       * `card_details_missing`: The card details are missing.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "users.getUserFeatures": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["users.Features"];
-                };
-            };
-            /** @description Bad Request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "users.setInstantPayouts": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    enabled: boolean;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["users.Features"];
-                };
-            };
-            /** @description Bad Request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "personal.getInstantPayoutBalance": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["personal.InstantPayoutBalance"];
-                };
-            };
-        };
-    };
-    "app_notifs.getNotifications": {
-        parameters: {
-            query?: {
-                /**
-                 * @description Only return transactions that were created chronologically
-                 *     before the transaction with this ID
-                 */
-                before_id?: number;
-                /**
-                 * @description Only return notifications that were created chronologically
-                 *     after the notification with this ID (i.e. with smaller IDs)
-                 */
-                after_id?: number;
-                /** @description The maximum number of notifications to return */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["app_notifs.Notification"][];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_before_id`
-             *       * `invalid_after_id`
-             *       * `invalid_limit`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "personal.getPayoutAttempts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["personal.PayoutAttempt"][];
-                };
-            };
-        };
-    };
-    "users.getPayouts": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["users.Payouts"];
-                };
-            };
-        };
-    };
-    getAdditionalIdentityDocumentVerificationStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DocumentVerification"];
-                };
-            };
-        };
-    };
-    getAdditionalIdentityDocumentBackVerificationStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DocumentVerification"];
-                };
-            };
-        };
-    };
-    "personal.getDetails": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["personal.Details"];
-                };
-            };
-        };
-    };
-    "personal.setDetails": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    address_city?: string;
-                    address_line1?: string;
-                    address_line2?: string;
-                    address_postal_code?: string;
-                    address_state?: string;
-                    dob?: {
-                        day: number;
-                        month: number;
-                        year: number;
-                    };
-                    /** @description The full ID number for this user. */
-                    id_number?: string | null;
-                    name_first?: string;
-                    name_last?: string;
-                    phone?: {
-                        dial_code: string;
-                        /** @description This field is mostly non-functional, but is instead used to render the dial code for the user. This field is necessary because different countries may use the same dial code (for example, the US and Canada). */
-                        dial_code_country: string;
-                        number: string;
-                    } | null;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["personal.Details"];
-                };
-            };
-        };
-    };
-    getIdentityDocumentVerificationStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DocumentVerification"];
-                };
-            };
-        };
-    };
-    getIdentityDocumentBackVerificationStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DocumentVerification"];
-                };
-            };
-        };
-    };
-    getStripePublishableKeyForUser: {
-        parameters: {
-            query?: never;
-            header?: {
-                /**
-                 * @description Required in client flows, where you make API calls on behalf of another Trustap user.
-                 *     Can be used with managed users ID and client API key.
-                 */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
                     "application/json": {
-                        publishable_key?: string;
-                    };
-                };
-            };
-        };
-    };
-    getProfilePayoutStatus: {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProfilePayoutStatus"];
-                };
-            };
-        };
-    };
-    "personal.addStripeFinancialConnectionsAccount": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    payment_method_id: string;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["personal.DebitAccount"];
-                };
-            };
-        };
-    };
-    "personal.getStripeFinancialConnectionsOwnership": {
-        parameters: {
-            query: {
-                setup_intent_id: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        email: string;
-                        name: string;
-                        raw_address: string;
-                        raw_phone: string;
-                    };
-                };
-            };
-            /**
-             * @description Conflict
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `unconfirmed_setup_intent`: The given SetupIntent has not
-             *         been confirmed
-             */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "personal.prepareStripeFinancialConnectionsAccount": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        setup_intent_client_secret: string;
-                        setup_intent_id: string;
-                    };
-                };
-            };
-        };
-    };
-    "basic.getTransactions": {
-        parameters: {
-            query?: {
-                /**
-                 * @description Only return transactions that were created chronologically
-                 *     before the transaction with this ID
-                 */
-                before_id?: number;
-                /**
-                 * @description Only return transactions that were created chronologically
-                 *     after the transaction with this ID (i.e. with smaller IDs)
-                 */
-                after_id?: number;
-                /** @description The maximum number of transactions to return */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"][];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_before_id`
-             *       * `invalid_after_id`
-             *       * `invalid_limit`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "basic.createTransaction": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /**
-                     * Format: int64
-                     * @description The `charge` value returned from a request to
-                     *     `/charge`.
-                     */
-                    charge: number;
-                    /**
-                     * Format: int64
-                     * @description The `charge_calculator_version` value returned from a request to `/charge`.
-                     */
-                    charge_calculator_version: number;
-                    /**
-                     * Format: int64
-                     * @description The charge config for which the charge amount is computed.
-                     */
-                    charge_config?: number;
-                    /**
-                     * Format: int64
-                     * @description The seller `charge` value returned from a
-                     *     request to `/charge`.
-                     */
-                    charge_seller?: number;
-                    client_id?: string;
-                    /** @description The currency that the `price` is specified in. */
-                    currency: string;
-                    /** @description A description of the goods being sold. */
-                    description: string;
-                    /**
-                     * @description `features` contains flags that modify the
-                     *     transaction flow.
-                     */
-                    features?: components["schemas"]["basic.Feature"][];
-                    /** @description The payment method to use for the transaction. */
-                    payment_method?: string;
-                    /**
-                     * Format: int64
-                     * @description The price of the goods being sold, in the
-                     *     `currency`'s smallest unit.  The `charge` value
-                     *     should correspond to the Trustap charge created
-                     *     with this price, otherwise this request will
-                     *     fail with a `400` error.
-                     */
-                    price: number;
-                    role: components["schemas"]["basic.Role"];
-                };
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `incorrect_calc_version`
-             *       * `incorrect_charge`
-             *       * `incorrect_charge_seller`
-             *       * `invalid_calc_version`
-             *       * `negative_price`
-             *       * `price_too_low`
-             *       * `invalid_charge_config`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "basic.createAndJoinTransaction": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /**
-                     * Format: int64
-                     * @description The `charge` value returned from a request to
-                     *     `/charge`.
-                     */
-                    charge: number;
-                    /**
-                     * Format: int64
-                     * @description The `charge_calculator_version` value returned from a request to `/charge`.
-                     */
-                    charge_calculator_version: number;
-                    /**
-                     * Format: int64
-                     * @description The charge config for which the charge amount is computed.
-                     * @default 1
-                     */
-                    charge_config?: number;
-                    /**
-                     * Format: int64
-                     * @description The seller `charge` value returned from a request to
-                     *     `/charge`.
-                     */
-                    charge_seller?: number;
-                    client_id?: string;
-                    creator_role: components["schemas"]["basic.Role"];
-                    /** @description The currency that the `price` is specified in. */
-                    currency: string;
-                    /** @description A description of the goods being sold. */
-                    description: string;
-                    /**
-                     * @description `features` contains flags that modify the
-                     *     transaction flow.
-                     */
-                    features?: components["schemas"]["basic.Feature"][];
-                    /**
-                     * @description The user that will be joined to the new
-                     *     transaction when it is created. It cannot be the
-                     *     ID of the user making the request.
-                     */
-                    join_user_id: string;
-                    /** @description The payment method to use for the transaction. */
-                    payment_method?: string;
-                    /**
-                     * Format: int64
-                     * @description The custom `postage_fee` for the transaction.
-                     */
-                    postage_fee?: number;
-                    /**
-                     * Format: int64
-                     * @description The price of the goods being sold, in the
-                     *     `currency`'s smallest unit.  The `charge` value
-                     *     should correspond to the Trustap charge created
-                     *     with this price, otherwise this request will
-                     *     fail with a `400` error.
-                     */
-                    price: number;
-                };
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_join_user_id`
-             *       * `duplicate_user_id`: The user specified by
-             *         `join_user_id` is the user making the request.
-             *       * `incorrect_calc_version`
-             *       * `incorrect_charge`
-             *       * `incorrect_charge_seller`
-             *       * `unsupported_currency`
-             *       * `user_not_owned_by_client`
-             *       * `invalid_calc_version`
-             *       * `negative_price`
-             *       * `price_too_low`
-             *       * `user_already_joined`
-             *       * `already_cancelled`
-             *       * `feature_not_found`
-             *       * `invalid_charge_config`
-             *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "basic.createTransactionWithGuestUser": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /**
-                     * @description The id of the buyer for this transaction
-                     *     (it can be full user id or guest user id).
-                     */
-                    buyer_id: string;
-                    /**
-                     * Format: int64
-                     * @description The `charge` value returned from a request to
-                     *     `/charge`.
-                     */
-                    charge: number;
-                    /**
-                     * Format: int64
-                     * @description The `charge_calculator_version` value returned from a request to `/charge`.
-                     */
-                    charge_calculator_version: number;
-                    /**
-                     * Format: int64
-                     * @description The charge config for which the charge amount is computed.
-                     * @default 1
-                     */
-                    charge_config?: number;
-                    /**
-                     * Format: int64
-                     * @description The seller `charge` value returned from a
-                     *     request to `/charge`.
-                     */
-                    charge_seller?: number;
-                    client_id?: string;
-                    creator_role: components["schemas"]["basic.Role"];
-                    currency: components["schemas"]["Currency"];
-                    /** @description A description of the goods being sold. */
-                    description: string;
-                    /**
-                     * @description `features` contains flags that modify the
-                     *     transaction flow.
-                     */
-                    features?: components["schemas"]["basic.Feature"][];
-                    /**
-                     * Format: absolute_url
-                     * @description URL of the image displayed on the Trustap payment page to show the buyer
-                     *     the item they are paying for.
-                     *     Supports jpg, png, gif, bmp, webp and svg files. Images displayed as a
-                     *     squares. Non-square images are cropped.
-                     */
-                    image_url?: string;
-                    /** @description The payment method to use for the transaction. */
-                    payment_method?: string;
-                    /**
-                     * Format: int64
-                     * @description The custom `postage fee`, this fee only applies in the case
-                     *     `postage fee feature flag` is enabled.
-                     */
-                    postage_fee?: number;
-                    /**
-                     * Format: int64
-                     * @description The price of the goods being sold, in the
-                     *     `currency`'s smallest unit.  The `charge` value
-                     *     should correspond to the Trustap charge created
-                     *     with this price, otherwise this request will
-                     *     fail with a `400` error.
-                     */
-                    price: number;
-                    /**
-                     * @description The id of the seller for this transaction
-                     *     (it can be full user id or guest user id).
-                     */
-                    seller_id: string;
-                };
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *       * `incorrect_calc_version`
-             *       * `incorrect_charge`
-             *       * `incorrect_charge_seller`
-             *       * `invalid_calc_version`
-             *       * `negative_price`
-             *       * `price_too_low`
-             *       * `incompatible_countries`
-             *       * `unsupported_currency`
-             *       * `invalid_role`
-             *       * `no_guest_user`
-             *       * `guest_user_not_found`
-             *       * `invalid_charge_config`
-             *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
-             *       * `invalid_image_url`
-             *       * `image_url_too_long`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "personal.getVerificationMethod": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
+                        /** @enum {string} */
+                        code: "invalid_email" | "missing_country_code" | "missing_tos_acceptance" | "invalid_tos_acceptance_date" | "invalid_country_code";
                         message: string;
-                        verification_method: string;
-                    };
-                };
-            };
-            /**
-             * @description Conflict
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `user_is_company`: Verification sessions aren't yet supported
-             *         for users with a `business_type` of `company`.
-             */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "personal.getVerificationSession": {
-        parameters: {
-            query?: never;
-            header?: {
-                /**
-                 * @description Required in client flows, where you make API calls on behalf of another Trustap user.
-                 *     Can be used with managed users ID and client API key.
-                 */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        verification_session_client_secret: string;
-                    };
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `stripe_identity_not_available`: stripe identity is currently not available for this account.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /**
-             * @description Conflict
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `user_is_company`: Verification sessions aren't yet supported
-             *         for users with a `business_type` of `company`.
-             */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "personal.getVerificationSessionNative": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        ephemeral_key: string;
-                        verification_session_id: string;
-                    };
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `stripe_identity_not_available`: stripe identity is currently not available for this account.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /**
-             * @description Conflict
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `user_is_company`: Verification sessions aren't yet supported
-             *         for users with a `business_type` of `company`.
-             */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "personal.getVerificationStatus": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        verification_session_id: string;
-                        verification_session_last_error?: components["schemas"]["personal.VerificationSessionLastError"];
-                        verification_session_status: string;
                     };
                 };
             };
         };
     };
-    "app_notifs.getNotification": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                notification_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["app_notifs.Notification"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "app_notifs.markNotificationAsRead": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                notification_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["app_notifs.Notification"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.getTransactionsByIDs": {
-        parameters: {
-            query: {
-                /** @description A comma-separated list of transaction IDs */
-                ids: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"][];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `ids_missing`
-             *       * `too_many_ids`
-             *       * `invalid_id`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "p2p.getCharge": {
-        parameters: {
-            query: {
-                /** @description The currency that the `price` is specified in. */
-                currency: string;
-                /**
-                 * @description The price of the goods being sold in this transaction, in
-                 *     the `currency`'s smallest unit. For example, if a trading
-                 *     card is being sold for $12.34 (with `currency` as `usd`),
-                 *     then the request for the charge for this transaction would
-                 *     be `/p2p/charge?price=1234&currency=usd`.
-                 */
-                price: number;
-                /**
-                 * @description Represents an additional charge to be paid by the buyer added
-                 *     to the transaction total. Use this field to include costs like
-                 *     processing fees, local taxes, or shipping surcharges.
-                 *     Must be an integer provided in the smallest unit of the currency
-                 *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
-                 */
-                price_extra?: number;
-                /**
-                 * @description Represents the postage/shipping cost to be paid by the buyer.
-                 *     Must be an integer provided in the smallest unit of the currency
-                 *     (for example, 500 for $5.00 USD).
-                 */
-                price_postage?: number;
-                /**
-                 * @description The `fee_multiplier` parameter is used to apply a higher percentage
-                 *     fee based on the total price of the transaction. The percentage fee
-                 *     is calculated multiplying the `percentage fee` by the `fee_multiplier`.
-                 */
-                fee_multiplier?: number;
-                /** @description Deprecated. */
-                quantity?: number;
-                /**
-                 * @description The payment method that will be used to pay for the
-                 *     transaction. This is necessary because different payment
-                 *     methods may result in different fees.
-                 *
-                 *     The default value is `card`.
-                 */
-                payment_method?: string;
-                /** @description The charge config for which the charge amount is computed. */
-                charge_config?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Charge"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `currency_missing`
-             *       * `invalid_price`
-             *       * `negative_price`
-             *       * `price_too_low`
-             *       * `unsupported_currency`
-             *       * `invalid_charge_config`
-             *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "p2p_client.getTimelinesForClient": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                client_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.ClientTimelines"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.createListingWithSeller": {
+    "v2_transactions.createTransaction": {
         parameters: {
             query?: never;
             header?: never;
@@ -5071,276 +856,61 @@ export interface operations {
             content: {
                 "application/json": {
                     /**
-                     * @description Unique ID for the product or service.
-                     *     Not used by Trustap internally, but returned in webhook events.
-                     */
-                    ad_id: string;
-                    currency: components["schemas"]["p2p.Currency"];
-                    /**
-                     * @description Description of the product or service.
-                     *     This description is shown in all emails and payment screens.
-                     */
-                    description: string;
-                    /**
-                     * Format: absolute_url
-                     * @description URL of the image displayed on the Trustap payment page to show the buyer
-                     *     the item they are paying for.
-                     *     Supports jpg, png, gif, bmp, webp and svg files. Images displayed as a
-                     *     squares. Non-square images are cropped.
-                     */
-                    image_url?: string;
-                    /** @description ISO 4217 three-character currency code representing the currency of the transaction. */
-                    seller_country_code: string;
-                    /**
-                     * @description Valid email address of your seller.
-                     *     Ensure this email is correct as Trustap will send all transaction correspondence to this email.
-                     */
-                    seller_email: string;
-                    /** @description Phone number of seller. */
-                    seller_phone_number?: string;
-                    /**
                      * Format: int64
-                     * @description The price of the product or service.
-                     *     This value must be provided in a currency's smallest unit.
+                     * @description The price of the goods being sold in this transaction, in
+                     *     the `currency`'s smallest unit. For example, if a trading
+                     *     card is being sold for $12.34 (with `currency` as `usd`),
+                     *     then the body would contain `{"amount": 1234, "currency": "usd"}`.
                      */
-                    value: number;
-                };
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.ActionsUrl"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *         * `invalid_role`: '' is not a valid role
-             *         * `invalid_image_url`: '' is not a valid image url
-             *         * `image_url_too_long`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.getTransactions": {
-        parameters: {
-            query?: {
-                /**
-                 * @description Only return transactions that were created chronologically
-                 *     before the transaction with this ID
-                 */
-                before_id?: number;
-                /**
-                 * @description Only return transactions that were created chronologically
-                 *     after the transaction with this ID (i.e. with smaller IDs)
-                 */
-                after_id?: number;
-                /** @description The maximum number of transactions to return */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"][];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_before_id`
-             *       * `invalid_after_id`
-             *       * `invalid_limit`
-             *       * `excessive_limit`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "p2p.createTransaction": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /** Format: int64 */
-                    charge_calculator_version: number;
-                    client_id?: string;
-                    /**
-                     * @description Specifies if the transaction contains a shippable item and
-                     *     the shipping details should be collected from the buyer.
-                     */
-                    contains_shipping?: boolean;
-                    currency: components["schemas"]["p2p.Currency"];
-                    /** Format: int64 */
-                    deposit_charge: number;
-                    /**
-                     * Format: int64
-                     * @description The charge config for which the charge amount is computed.
-                     */
-                    deposit_charge_config?: number;
-                    /** Format: int64 */
-                    deposit_charge_seller?: number;
-                    /** @description The payment method to use for the transaction. */
-                    deposit_payment_method?: string;
-                    /** Format: int64 */
-                    deposit_price: number;
+                    amount: number;
                     /**
                      * Format: int64
                      * @description Represents an additional charge to be paid by the buyer added
                      *     to the transaction total. Use this field to include costs like
-                     *     processing fees, local taxes, or shipping surcharges.
+                     *     processing fees or local taxes.
                      *     Must be an integer provided in the smallest unit of the currency
                      *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
                      */
-                    deposit_price_extra?: number;
+                    amount_extra?: number;
                     /**
                      * Format: int64
-                     * @description Represents the postage/shipping cost to be paid by the buyer.
+                     * @description Represents an additional charge to be paid by the buyer, seller or client.
+                     *     Use this field to include costs like shipping surcharges.
                      *     Must be an integer provided in the smallest unit of the currency
                      *     (for example, 500 for $5.00 USD).
                      */
-                    deposit_price_postage?: number;
-                    /** @description A description of the goods being sold. */
-                    description: string;
-                    role: components["schemas"]["p2p.Role"];
+                    amount_postage?: number;
+                    /** @description The ID of the user that will be the buyer in this transaction. */
+                    buyer_id?: string;
                     /**
-                     * @description If `skip_remainder` is `true` then this
-                     *     transaction will move to the "confirm handover"
-                     *     step after the deposit has been accepted.
-                     */
-                    skip_remainder?: boolean;
-                };
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `incorrect_calc_version`
-             *       * `incorrect_charge`
-             *       * `incorrect_charge_seller`
-             *       * `invalid_calc_version`
-             *       * `negative_price`
-             *       * `price_too_low`
-             *       * `invalid_charge_config`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "p2p.createAndJoinTransaction": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /** Format: int64 */
-                    charge_calculator_version: number;
-                    /**
-                     * @description Specifies if the transaction contains a shippable item and
+                     * @description Specifies if the transactions contains a shippable item and
                      *     the shipping details should be collected from the buyer.
                      */
                     contains_shipping?: boolean;
-                    creator_role: components["schemas"]["p2p.Role"];
-                    currency: components["schemas"]["p2p.Currency"];
-                    /** Format: int64 */
-                    deposit_charge: number;
                     /**
-                     * Format: int64
-                     * @description The charge config for which the charge amount is computed.
+                     * Format: currency
+                     * @description The currency that the `amount` is specified in.
                      */
-                    deposit_charge_config?: number;
-                    /** Format: int64 */
-                    deposit_charge_seller: number;
-                    /**
-                     * Format: double
-                     * @description The `fee_multiplier` parameter is used to apply a higher percentage
-                     *     fee based on the total price of the transaction. The percentage fee
-                     *     is calculated multiplying the `percentage fee` by the `fee_multiplier`.
-                     */
-                    deposit_fee_multiplier?: number;
-                    /** @description The payment method to use for the transaction. */
-                    deposit_payment_method?: string;
-                    /** Format: int64 */
-                    deposit_price: number;
-                    /**
-                     * Format: int64
-                     * @description Represents an additional charge to be paid by the buyer added
-                     *     to the transaction total. Use this field to include costs like
-                     *     processing fees, local taxes, or shipping surcharges.
-                     *     Must be an integer provided in the smallest unit of the currency
-                     *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
-                     */
-                    deposit_price_extra?: number;
-                    /**
-                     * Format: int64
-                     * @description Represents the postage/shipping cost to be paid by the buyer.
-                     *     Must be an integer provided in the smallest unit of the currency
-                     *     (for example, 500 for $5.00 USD).
-                     */
-                    deposit_price_postage?: number;
+                    currency: string;
                     /** @description A description of the goods being sold. */
                     description: string;
+                    /**
+                     * Format: int64
+                     * @description The buyer fees for this transaction, in the `currency`'s smallest
+                     *     unit.
+                     */
+                    fees_buyer: number;
+                    /**
+                     * Format: int64
+                     * @description The fee config for which the fees are computed.
+                     */
+                    fees_config?: number;
+                    /**
+                     * Format: int64
+                     * @description The seller fees for this transaction, in the `currency`'s smallest
+                     *     unit.
+                     */
+                    fees_seller?: number;
                     /**
                      * Format: absolute_url
                      * @description URL of the image displayed on the Trustap payment page to show the buyer
@@ -5350,17 +920,21 @@ export interface operations {
                      */
                     image_url?: string;
                     /**
-                     * @description The user that will be joined to the new
-                     *     transaction when it is created. It cannot be the
-                     *     ID of the user making the request.
+                     * @description The payment method that will be used to pay for the
+                     *     transaction. This is necessary because different payment
+                     *     methods may result in different fees.
+                     *     Supports `card` and `bank_transfer`.
+                     *
+                     *     The default value is `card`.
                      */
-                    join_user_id: string;
+                    payment_method?: string;
                     /**
-                     * @description If `skip_remainder` is `true` then the
-                     *     transaction will move to the "confirm handover"
-                     *     step after the deposit has been accepted.
+                     * @description The role of the user creating the transaction.
+                     *     Supported values are `buyer` and `seller`.
                      */
-                    skip_remainder?: boolean;
+                    role?: string;
+                    /** @description The ID of the user that will be the seller in this transaction. */
+                    seller_id?: string;
                 };
             };
         };
@@ -5371,1412 +945,30 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
+                    "application/json": components["schemas"]["v2_transactions.Transaction"];
                 };
             };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_join_user_id`
-             *       * `unsupported_currency`
-             *       * `user_not_owned_by_client`
-             *       * `duplicate_user_id`: The user specified by
-             *       * `join_user_id` is the user making the request.
-             *       * `incorrect_charge`
-             *       * `incorrect_charge_seller`
-             *       * `second_party_already_joined`
-             *       * `duplicate_user_id`
-             *       * `incompatible_countries`
-             *       * `incompatible_users`
-             *       * `negative_price`
-             *       * `price_too_low`
-             *       * `invalid_charge_config`
-             *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
-             */
+            /** @description Bad Request */
             400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Conflict
-             *
-             *     `code` can be one of the following:
-             *       * `unsupported_seller_client_configuration`
-             */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "p2p.createTransactionWithGuestUser": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /**
-                     * @description The id of the buyer for this transaction
-                     *     (it can be full user id or guest user id).
-                     */
-                    buyer_id: string;
-                    /** Format: int64 */
-                    charge_calculator_version: number;
-                    /**
-                     * @description Specifies if the transaction contains a shippable item and
-                     *     the shipping details should be collected from the buyer.
-                     */
-                    contains_shipping?: boolean;
-                    creator_role: components["schemas"]["p2p.Role"];
-                    currency: components["schemas"]["p2p.Currency"];
-                    /** Format: int64 */
-                    deposit_charge: number;
-                    /**
-                     * Format: int64
-                     * @description The charge config for which the charge amount is computed.
-                     */
-                    deposit_charge_config?: number;
-                    /** Format: int64 */
-                    deposit_charge_seller?: number;
-                    /**
-                     * Format: double
-                     * @description The `fee_multiplier` parameter is used to apply a higher percentage
-                     *     fee based on the total price of the transaction. The percentage fee
-                     *     is calculated multiplying the `percentage fee` by the `fee_multiplier`.
-                     */
-                    deposit_fee_multiplier?: number;
-                    /** @description The payment method to use for the transaction. */
-                    deposit_payment_method?: string;
-                    /** Format: int64 */
-                    deposit_price: number;
-                    /**
-                     * Format: int64
-                     * @description Represents an additional charge to be paid by the buyer added
-                     *     to the transaction total. Use this field to include costs like
-                     *     processing fees, local taxes, or shipping surcharges.
-                     *     Must be an integer provided in the smallest unit of the currency
-                     *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
-                     */
-                    deposit_price_extra?: number;
-                    /**
-                     * Format: int64
-                     * @description Represents the postage/shipping cost to be paid by the buyer.
-                     *     Must be an integer provided in the smallest unit of the currency
-                     *     (for example, 500 for $5.00 USD).
-                     */
-                    deposit_price_postage?: number;
-                    /** @description A description of the goods being sold. */
-                    description: string;
-                    /**
-                     * Format: absolute_url
-                     * @description URL of the image displayed on the Trustap payment page to show the buyer
-                     *     the item they are paying for.
-                     *     Supports jpg, png, gif, bmp, webp and svg files. Images displayed as a
-                     *     squares. Non-square images are cropped.
-                     */
-                    image_url?: string;
-                    /**
-                     * @description The id of the seller for this transaction
-                     *     (it can be full user id or guest user id).
-                     */
-                    seller_id: string;
-                    /**
-                     * @description If `skip_remainder` is `true` then the
-                     *     transaction will move to the "confirm handover"
-                     *     step after the deposit has been accepted.
-                     */
-                    skip_remainder?: boolean;
-                };
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *       * `incompatible_platforms`
-             *       * `no_guest_user`
-             *       * `guest_user_not_found`
-             *       * `invalid_role`
-             *       * `incorrect_charge`
-             *       * `unsupported_currency`
-             *       * `fee_multiplier_too_low`
-             *       * `negative_price`
-             *       * `price_too_low`
-             *       * `invalid_charge_config`
-             *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
-             *       * `invalid_image_url`
-             *       * `image_url_too_long`
-             *       * `seller_country_code_not_set`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Conflict
-             *
-             *     `code` can be one of the following:
-             *       * `unsupported_seller_client_configuration`
-             */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "p2p.getTransaction": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-        };
-    };
-    "p2p.updateTransaction": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    currency?: components["schemas"]["p2p.Currency"];
-                    /** Format: int64 */
-                    deposit_charge?: number;
-                    /** Format: int64 */
-                    deposit_charge_seller?: number;
-                    /** Format: int64 */
-                    deposit_price?: number;
-                    /** Format: int64 */
-                    deposit_price_extra?: number;
-                    /**
-                     * Format: int64
-                     * @description Represents the postage/shipping cost to be paid by the buyer.
-                     *     Must be an integer provided in the smallest unit of the currency
-                     *     (for example, 500 for $5.00 USD).
-                     */
-                    deposit_price_postage?: number;
-                    /** @description A description of the goods being sold. */
-                    description?: string;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_id`
-             *       * `second_party_already_joined`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.acceptComplaint": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `funds_already_released`
-             *       * `deposit_not_paid`
-             *       * `deposit_already_refunded`
-             *       * `not_complained`
-             *       * `complaint_cancelled`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.acceptDeposit": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `deposit_not_paid`
-             *       * `deposit_payment_in_review`
-             *       * `deposit_already_accepted`
-             *       * `already_cancelled`
-             *       * `deposit_already_captured`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_seller`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "p2p.acceptDepositWithGuestSeller": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_seller`
-             *       * `subject_is_not_guest_user`
-             *       * `deposit_not_paid`
-             *       * `deposit_already_accepted`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.getBankTransferDetails": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.BankTransferDetails"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *     `code` can be one of the following:
-             *       * `payment_method_not_bank_transfer`
-             *       * `paid_with_balance`
-             *
-             *       A transaction with `paid_with_balance` error code means that the buyer's payment was already paid using their Trustap balance, so there are no bank transfer details to provide.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.getBillingDetails": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.BillingDetails"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.getBuyerDetails": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.UserDetails"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.cancelWithDescription": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    description: string;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `second_party_not_joined`
-             *       * `already_cancelled`
-             *       * `remainder_already_paid`
-             *       * `handover_already_confirmed`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.cancelP2PTransactionWithDescriptionAsGuest": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    description: string;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `missing_description`
-             *       * `empty_description`
-             *       * `already_cancelled`
-             *       * `remainder_already_paid`
-             *       * `handover_already_confirmed`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.getChargeForTransaction": {
-        parameters: {
-            query: {
-                /** @description The currency that the `price` is specified in. */
-                currency?: string;
-                /**
-                 * @description The price of the goods being sold in this transaction, in
-                 *     the `currency`'s smallest unit. For example, if a trading
-                 *     card is being sold for $12.34 (with `currency` as `usd`),
-                 *     then the request for the charge for this transaction would
-                 *     be `/charge?price=1234&currency=usd`.
-                 */
-                price: number;
-                /**
-                 * @description Represents an additional charge to be paid by the buyer added
-                 *     to the transaction total. Use this field to include costs like
-                 *     processing fees, local taxes, or shipping surcharges.
-                 *     Must be an integer provided in the smallest unit of the currency
-                 *     (for example, 500 for $5.00 USD). Defaults to 0 if not provided.
-                 */
-                price_extra?: number;
-                /**
-                 * @description Represents the postage/shipping cost to be paid by the buyer.
-                 *     Must be an integer provided in the smallest unit of the currency
-                 *     (for example, 500 for $5.00 USD).
-                 */
-                price_postage?: number;
-                /**
-                 * @description The `fee_multiplier` parameter is used to apply a higher percentage
-                 *     fee based on the total price of the transaction. The percentage fee
-                 *     is calculated multiplying the `percentage fee` by the `fee_multiplier`.
-                 */
-                fee_multiplier?: number;
-                /** @description Deprecated. */
-                quantity?: number;
-                /**
-                 * @description The payment method that will be used to pay for the
-                 *     transaction. This is necessary because different payment
-                 *     methods may result in different fees.
-                 *
-                 *     The default value is `card`.
-                 */
-                payment_method?: string;
-                /** @description The charge config for which the charge amount is computed. */
-                charge_config?: number;
-            };
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Charge"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `fee_multiplier_too_low`
-             *       * `invalid_payment_method`
-             *       * `currency_missing`
-             *       * `negative_price`
-             *       * `price_too_low`
-             *       * `unsupported_currency`
-             *       * `invalid_charge_config`
-             *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "p2p.claimTransactionForBuyer": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `already_claimed`
-             *       * `cannot_claim_own_transaction`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "p2p.claimTransactionForSeller": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `already_claimed`
-             *       * `cannot_claim_own_transaction`
-             *       * `invalid_user_platform`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.submitComplaint": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: components["requestBodies"]["p2p.submitComplaintSubmitComplaintBody"];
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `remainder_required`
-             *       * `already_complained`
-             *       * `funds_already_released`
-             *       * `complaint_period_expired`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.submitComplaintWithGuestBuyer": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: components["requestBodies"]["p2p.submitComplaintSubmitComplaintBody"];
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `remainder_required`
-             *       * `already_complained`
-             *       * `funds_already_released`
-             *       * `complaint_period_expired`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.confirmDelivery": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `delivery_already_set`
-             *       * `invalid_id`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.confirmDeliveryWithGuestBuyer": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `tracking_not_added`
-             *       * `delivery_already_set`
-             *       * `invalid_id`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.confirmHandover": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `remainder_required`
-             *       * `already_complained`
-             *       * `seller_handover_already_confirmed`
-             *       * `buyer_handover_already_confirmed`
-             *       * `remainder_payment_in_review`
-             *       * `already_cancelled`
-             *       * `handover_confirmation_not_supported`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.confirmHandoverWithGuestUserForTransaction": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `remainder_required`
-             *       * `already_complained`
-             *       * `seller_handover_already_confirmed`
-             *       * `buyer_handover_already_confirmed`
-             *       * `handover_confirmation_not_supported`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.getDepositStripeClientSecretForTransaction": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        client_secret: string;
+                        /** @enum {string} */
+                        code: "invalid_currency" | "missing_user_id" | "invalid_user_id" | "missing_seller_id" | "missing_buyer_id" | "invalid_seller_id" | "invalid_buyer_id" | "incorrect_charge" | "negative_amount" | "amount_too_low" | "invalid_charge_config" | "missing_role" | "invalid_role";
+                        message: string;
                     };
                 };
             };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `deposit_already_paid`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
         };
     };
-    "p2p.endComplaintPeriod": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `complaint_period_expired`
-             *       * `handover_not_confirmed`
-             *       * `funds_already_released`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.endComplaintPeriodWithGuestBuyer": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `complaint_period_expired`
-             *       * `handover_not_confirmed`
-             *       * `funds_already_released`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.joinWithGuest": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `cannot_join_own_transaction`
-             *       * `already_cancelled``
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /**
-             * @description Conflict
-             *
-             *     `code` can be one of the following:
-             *       * `unsupported_seller_client_configuration`
-             */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "p2p.getTransactionMetadata": {
+    "v2_transactions.getTransaction": {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                transaction_id: number;
+                transaction_id: string;
             };
             cookie?: never;
         };
@@ -6784,34 +976,314 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["v2_transactions.Transaction"];
+                };
+            };
+        };
+    };
+    "v2_transactions.acceptComplaintForTransaction": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
+                "Trustap-User"?: string;
+            };
+            path: {
+                transaction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["v2_transactions.Transaction"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        [key: string]: unknown;
+                        /** @enum {string} */
+                        code: "funds_already_released" | "deposit_not_paid" | "deposit_already_refunded" | "not_complained";
+                        message: string;
                     };
                 };
             };
-            /** @description Not Found */
-            404: {
+        };
+    };
+    "v2_transactions.acceptPaymentForTransaction": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
+                "Trustap-User"?: string;
+            };
+            path: {
+                transaction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["v2_transactions.Transaction"];
+                };
             };
         };
     };
-    "p2p.setTransactionMetadata": {
+    "v2_transactions.getBankTransferDetails": {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                transaction_id: number;
+                transaction_id: string;
             };
             cookie?: never;
         };
-        requestBody?: {
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["v2_transactions.BankTransferDetails"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        code: "payment_method_not_bank_transfer" | "paid_with_balance";
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "v2_transactions.cancelTransaction": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
+                "Trustap-User"?: string;
+            };
+            path: {
+                transaction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description A description of the cancellation reason. */
+                    description: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["v2_transactions.Transaction"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        code: "already_cancelled" | "handover_already_confirmed";
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "v2_transactions.claimTransaction": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
+                "Trustap-User"?: string;
+            };
+            path: {
+                transaction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description The role of the user claiming the transaction. Supported values are `buyer` and `seller`. */
+                    role: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["v2_transactions.Transaction"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        code: "cannot_claim_own_transaction" | "invalid_role" | "invalid_user_id" | "emails_mismatched";
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "v2_transactions.confirmDeliveryForTransaction": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
+                "Trustap-User"?: string;
+            };
+            path: {
+                transaction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["v2_transactions.Transaction"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        code: "delivery_already_set" | "invalid_id";
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "v2_transactions.confirmHandoverForTransaction": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
+                "Trustap-User"?: string;
+            };
+            path: {
+                transaction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["v2_transactions.Transaction"];
+                };
+            };
+        };
+    };
+    "v2_transactions.endComplaintPeriodForTransaction": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
+                "Trustap-User"?: string;
+            };
+            path: {
+                transaction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["v2_transactions.Transaction"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        code: "complaint_period_expired" | "handover_not_confirmed" | "funds_already_released";
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "v2_transactions.setTransactionMetadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transaction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
             content: {
                 "application/json": {
                     [key: string]: unknown;
@@ -6825,210 +1297,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["v2_transactions.Transaction"];
                 };
             };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `too_many_metadata_fields`
-             *       * `value_too_long`
-             *       * `field_name_too_long`
-             *       * `empty_json`
-             *       * `json_type_not_allowed``
-             */
+            /** @description Bad Request */
             400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "p2p.getSellerDetailsForTransaction": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.UserDetails"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.setDepositPaymentMethod": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["p2p.DepositPaymentMethod"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_payment_method`
-             *       * `deposit_already_paid`
-             *       * `payment_method_already_set`: The specified payment method and charge configuration are already set.
-             *       * `invalid_charge_config`: Charge configuration must be an integer greater than or equal to 1.
-             *       * `unsupported_currency`
-             *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
-             *       * `currency_missing`
-             *       * `incorrect_charge`: Specified charge doesn't match expected charge.
-             *       * `incorrect_charge_seller`: Specified seller charge doesn't match expected seller charge.
-             *       * `incorrect_price`: Specified price doesn't match expected price.
-             *       * `incorrect_currency`: Specified currency doesn't match expected currency.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "p2p.getStripePublishableKeyForTransaction": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        publishable_key: string;
+                        /** @enum {string} */
+                        code: "too_many_keys" | "value_too_long" | "key_too_long" | "empty_json" | "unsupported_type";
+                        message: string;
                     };
                 };
             };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_id`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             *       * `not_seller`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
         };
     };
-    setPriceForP2PTransaction: {
+    "v2_transactions.getShippingDetailsForTransaction": {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                transactionId: number;
+                transaction_id: string;
             };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /**
-                     * Format: int64
-                     * @description The `charge` value returned from a request to
-                     *     `/p2p/charge`.
-                     */
-                    charge: number;
-                    /**
-                     * Format: int64
-                     * @description The `charge_calculator_version` value returned from a request to `/p2p/charge`.
-                     */
-                    charge_calculator_version: number;
-                    currency: components["schemas"]["Currency"];
-                    /**
-                     * Format: int64
-                     * @description The price of the goods being sold, in the
-                     *     `currency`'s smallest unit.  The `charge` value
-                     *     should correspond to the Trustap charge created
-                     *     with this price, otherwise this request will
-                     *     fail with a `400` error.
-                     */
-                    price: number;
-                };
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
@@ -7036,1762 +1332,17 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
+                    "application/json": components["schemas"]["v2_transactions.ShippingDetails"];
                 };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `currency_mismatch`: Pricing currency is different
-             *         to the transaction's currency.
-             *       * `remainder_already_skipped`
-             *       * `remainder_too_low`: The difference between the
-             *         total price of this transaction isn't larger than
-             *         the deposit price.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_seller`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
-    skipRemainderForP2PTransaction: {
+    "v2_transactions.setShippingDetailsForTransaction": {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                transactionId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `price_already_set`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_seller`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.claimAsBuyer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                secret: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `already_claimed`
-             *       * `cannot_claim_own_transaction`
-             *       * `missing_secret`
-             *       * `invalid_user_platform`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.claimTransactionAsSeller": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                secret: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `missing_secret`
-             *       * `already_claimed`
-             *       * `cannot_claim_own_transaction`
-             *       * `invalid_user_platform`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.getTransactionByJoinCode": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                join_code: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "p2p.joinTransactionByJoinCode": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                join_code: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["p2p.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `cannot_join_own_transaction`
-             *       * `already_cancelled`
-             *       * `unsupported_currency`
-             *       * `invalid_payment_method`
-             *       * `invalid_user_id`
-             *       * `incompatible_users`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /**
-             * @description Conflict
-             *
-             *     `code` can be one of the following:
-             *       * `unsupported_seller_client_configuration`
-             */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "basic.getShippoShippingRates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    currency: string;
-                    customs_certify?: boolean;
-                    customs_certify_signer?: string;
-                    customs_description?: string;
-                    customs_eel_pfc?: string;
-                    customs_incoterm?: string;
-                    customs_mass_unit?: string;
-                    /** Format: double */
-                    customs_net_weight?: number;
-                    /** @enum {string} */
-                    customs_non_delivery_option?: "return" | "abandon";
-                    customs_origin_country?: string;
-                    /** Format: int64 */
-                    customs_quantity?: number;
-                    customs_value_amount?: string;
-                    customs_value_currency?: string;
-                    parcel_distance_unit: components["schemas"]["basic.DistanceUnit"];
-                    /** Format: double */
-                    parcel_height: number;
-                    /** Format: double */
-                    parcel_length: number;
-                    parcel_mass_unit: components["schemas"]["basic.MassUnit"];
-                    /** Format: double */
-                    parcel_weight: number;
-                    /** Format: double */
-                    parcel_width: number;
-                    recipient_city: string;
-                    recipient_country: string;
-                    recipient_full_name: string;
-                    recipient_phone: string;
-                    recipient_state: string;
-                    recipient_street_1: string;
-                    recipient_street_2?: string;
-                    recipient_zip_code: string;
-                    sender_city: string;
-                    sender_country: string;
-                    sender_full_name: string;
-                    sender_phone: string;
-                    sender_state: string;
-                    sender_street_1: string;
-                    sender_street_2?: string;
-                    sender_zip_code: string;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.ShippoShippingRatesResponse"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *       * `missing_shipment_details`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getSupportedCarriers: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Carrier"][];
-                };
-            };
-        };
-    };
-    "basic.getTransactionByJoinCode": {
-        parameters: {
-            query: {
-                join_code: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `join_code_missing`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.joinTransaction": {
-        parameters: {
-            query: {
-                join_code: string;
-            };
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `join_code_missing`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.getTransaction": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_id`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    updateTransaction: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /**
-                     * Format: int64
-                     * @description The `charge` value returned from a request to
-                     *     `/charge`.
-                     */
-                    charge?: number;
-                    /**
-                     * Format: int64
-                     * @description The `charge_seller` value returned from a
-                     *     request to `/charge`.
-                     */
-                    charge_seller?: number;
-                    currency?: string;
-                    /** @description A description of the goods being sold. */
-                    description?: string;
-                    /**
-                     * Format: int64
-                     * @description The price of the goods being sold, in the
-                     *     `currency`'s smallest unit.  The `charge` value
-                     *     should correspond to the Trustap charge created
-                     *     with this price, otherwise this request will
-                     *     fail with a `400` error.
-                     */
-                    price?: number;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_id`
-             *       * `second_party_already_joined`
-             *       * `values_not_changed`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.acceptComplaint": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `funds_already_released`
-             *       * `not_paid`
-             *       * `not_complained`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_seller`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.acceptPayment": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `missing_required_feature`
-             *       * `payment_already_accepted`
-             *       * `transaction_not_paid_yet`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.acceptPaymentWithGuestSeller": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `missing_required_feature`
-             *       * `payment_already_accepted`
-             *       * `missing_shippo_shipping_rate_id`
-             *       * `transaction_not_paid_yet`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.getBankTransferDetails": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.BankTransferDetails"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *     `code` can be one of the following:
-             *       * `payment_method_not_bank_transfer`
-             *       * `paid_with_balance`
-             *
-             *       A transaction with `paid_with_balance` error code means that the buyer's payment was already paid using their Trustap balance, so there are no bank transfer details to provide.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.getBillingDetails": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.BillingDetails"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.getBuyerDetails": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserDetails"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.cancelTransaction": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_id`
-             *       * `already_paid`
-             *       * `already_cancelled`
-             *       * `tracking_already_added`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.cancelTransactionWithGuestUser": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_id`
-             *       * `already_paid`
-             *       * `already_cancelled`
-             *       * `tracking_already_added`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Forbidden */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.getChargeForTransaction": {
-        parameters: {
-            query: {
-                /**
-                 * @description The price of the goods being sold in this transaction, in
-                 *     the `currency`'s smallest unit. For example, if a trading
-                 *     card is being sold for $12.34 (with `currency` as `usd`),
-                 *     then the request for the charge for this transaction would
-                 *     be `/charge?price=1234&currency=usd`.
-                 */
-                price: number;
-                /** @description Deprecated. */
-                quantity?: number;
-                /**
-                 * @description The payment method that will be used to pay for the
-                 *     transaction. This is necessary because different payment
-                 *     methods may result in different fees.
-                 *
-                 *     The default value is `card`.
-                 */
-                payment_method?: string;
-                /** @description The charge config for which the charge amount is computed. */
-                charge_config?: number;
-            };
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Charge"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_payment_method`
-             *       * `unsupported_currency`
-             *       * `currency_missing`
-             *       * `invalid_price`
-             *       * `negative_price`
-             *       * `price_too_low`
-             *       * `invalid_charge_config`
-             *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "basic.claimTransactionForBuyer": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `already_claimed`
-             *       * `cannot_claim_own_transaction`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.claimTransactionForSeller": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `already_claimed`
-             *       * `cannot_claim_own_transaction`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.submitComplaintWithDescription": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: components["requestBodies"]["basic.submitComplaintWithDescriptionDescriptionBody"];
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `empty_complaint_description`
-             *       * `already_complained`
-             *       * `unconfirmed_delivery`: The complaint period for
-             *         this transaction has not yet started.
-             *       * `complaint_period_ended_prematurely`: The buyer has
-             *         already ended the complaint period.
-             *       * `complaint_period_expired`
-             *       * `funds_already_released`
-             *       * `invalid_id`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.submitComplaintWithGuestBuyer": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: components["requestBodies"]["basic.submitComplaintWithDescriptionDescriptionBody"];
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `empty_complaint_description`
-             *       * `already_complained`
-             *       * `unconfirmed_delivery`: The complaint period for
-             *         this transaction has not yet started.
-             *       * `complaint_period_ended_prematurely`: The buyer has
-             *         already ended the complaint period.
-             *       * `complaint_period_expired`
-             *       * `funds_already_released`
-             *       * `invalid_id`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.confirmDelivery": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `tracking_not_added`
-             *       * `delivery_already_set`
-             *       * `invalid_id`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.confirmDeliveryWithGuestBuyer": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `tracking_not_added`
-             *       * `delivery_already_set`
-             *       * `invalid_id`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.endComplaintPeriod": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `complaint_period_expired`
-             *       * `already_complained`
-             *       * `complaint_period_ended_prematurely`
-             *       * `invalid_id`
-             *       * `unconfirmed_delivery`: The complaint period for
-             *         this transaction has not yet started.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.extendTrackingDeadlineForTransaction": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_id`
-             *       * `tracking_already_added`
-             *       * `payment_details_not_added`
-             *       * `tracking_submission_window_not_started`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.generateShipmentLabel": {
-        parameters: {
-            query: {
-                carrier: string;
-            };
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.ShipmentLabel"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `pick_up_details_missing`
-             *       * `drop_off_details_missing`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_seller`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.getSellerDetails": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserDetails"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.setPaymentMethodForTransaction": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /**
-                     * Format: int64
-                     * @description The `charge` value returned from a request to
-                     *     `/charge`.
-                     */
-                    charge: number;
-                    /**
-                     * Format: int64
-                     * @description The charge config for which the charge amount is computed.
-                     */
-                    charge_config?: number;
-                    /**
-                     * Format: int64
-                     * @description The `charge_seller` value returned from a request to
-                     *     `/charge`.
-                     */
-                    charge_seller?: number;
-                    currency: string;
-                    payment_method?: string;
-                    /**
-                     * Format: int64
-                     * @description The price of the goods being sold, in the
-                     *     `currency`'s smallest unit.  The `charge` value
-                     *     should correspond to the Trustap charge created
-                     *     with this price, otherwise this request will
-                     *     fail with a `400` error.
-                     */
-                    price: number;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_payment_method`
-             *       * `unsupported_currency`
-             *       * `currency_missing`
-             *       * `incorrect_charge`
-             *       * `incorrect_charge_seller`
-             *       * `incorrect_price`
-             *       * `incorrect_currency`
-             *       * `invalid_charge_config`
-             *       * `unsupported_combination`: The provided payment method, charge config and currency combination isn't supported.
-             *       * `payment_method_already_set`: The specified payment method and charge configuration are already set.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.getShippingDetailsFromTransaction": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ShippingDetails"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.setShippingDetails": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
+                transaction_id: string;
             };
             cookie?: never;
         };
@@ -8816,462 +1367,40 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ShippingDetails"];
+                    "application/json": components["schemas"]["v2_transactions.ShippingDetails"];
                 };
             };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `empty_name`
-             *       * `empty_country`
-             */
+            /** @description Bad Request */
             400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.setShippoAddress": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    city: string;
-                    country: string;
-                    email?: string;
-                    full_name: string;
-                    is_sender_address: boolean;
-                    phone: string;
-                    state: string;
-                    street_1: string;
-                    street_2?: string;
-                    zip_code: string;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.ShippoAddress"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *     `code` can be one of the following:
-             *       * `missing_tx_feature`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "basic.setShippoCustomsDeclaration": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    certify: boolean;
-                    certify_signer: string;
-                    description: string;
-                    eel_pfc?: string;
-                    incoterm?: string;
-                    mass_unit: string;
-                    /** Format: double */
-                    net_weight: number;
-                    /** @enum {string} */
-                    non_delivery_option: "return" | "abandon";
-                    origin_country: string;
-                    /** Format: int64 */
-                    quantity: number;
-                    value_amount: string;
-                    value_currency: string;
-                };
-            };
-        };
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /**
-             * @description Bad Request
-             *     `code` can be one of the following:
-             *       * `missing_tx_feature`
-             *       * `customs_declaration_already_submitted`
-             *       * `nothing_to_declare`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "basic.setShippoParcelDetails": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    distance_unit: components["schemas"]["basic.DistanceUnit"];
-                    /** Format: double */
-                    height: number;
-                    /** Format: double */
-                    length: number;
-                    mass_unit: components["schemas"]["basic.MassUnit"];
-                    /**
-                     * @description Date the shipment will be tendered to the carrier.
-                     *     Must be in the format 2014-01-18T00:35:03.463Z
-                     */
-                    shipment_date: string;
-                    /** Format: double */
-                    weight: number;
-                    /** Format: double */
-                    width: number;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.ShippoParcel"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *     `code` can be one of the following:
-             *       * `missing_tx_feature`
-             *       * `wrong_shipment_date_format`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "basic.getShippoShippingLabel": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ShippoLabelDetails"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *     `code` can be one of the following:
-             *       * `transaction_not_tracked`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "basic.setShippoShippingRate": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    rate_id: string;
-                    shipment_id?: string;
-                };
-            };
-        };
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /**
-             * @description Bad Request
-             *     `code` can be one of the following:
-             *       * `missing_tx_feature`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    "basic.getShippoShippingRatesForTransaction": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.ShippoRate"][];
-                };
-            };
-            /**
-             * @description Bad Request
-             *     `code` can be one of the following:
-             *       * `missing_tx_feature`
-             *       * `missing_shipment_details`
-             *       * `customs_declaration_required`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getStripeClientSecretForTransaction: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        client_secret: string;
+                        /** @enum {string} */
+                        code: "empty_name" | "empty_country";
+                        message: string;
                     };
                 };
             };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `already_paid`
-             *       * `invalid_id`
-             *       * `not_accepted`: This transaction was created from a
-             *         listing but the listing's creator has not yet
-             *         accepted this transaction.
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
         };
     };
-    "basic.getStripePublishableKeyForTransaction": {
+    "v2_transactions.submitComplaintForTransaction": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
+                "Trustap-User"?: string;
+            };
             path: {
-                transaction_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        publishable_key: string;
-                    };
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_id`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             *       * `not_seller`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.submitOrderIssue": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: number;
+                transaction_id: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
                 "application/json": {
+                    category?: components["schemas"]["v2_transactions.ComplaintCategory"];
                     description: string;
                 };
             };
@@ -9283,50 +1412,25 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
+                    "application/json": components["schemas"]["v2_transactions.Transaction"];
                 };
             };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `delivery_already_set`
-             *       * `tracking_not_added`
-             */
+            /** @description Bad Request */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Error"];
+                    "application/json": {
+                        /** @enum {string} */
+                        code: "remainder_required" | "already_complained" | "funds_already_released" | "complaint_period_expired" | "handover_or_delivery_required";
+                        message: string;
+                    };
                 };
-            };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_buyer`
-             */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
-    "basic.trackTransaction": {
+    "v2_transactions.submitOrderIssueForTransaction": {
         parameters: {
             query?: never;
             header?: {
@@ -9334,11 +1438,18 @@ export interface operations {
                 "Trustap-User"?: string;
             };
             path: {
-                transaction_id: number;
+                transaction_id: string;
             };
             cookie?: never;
         };
-        requestBody: components["requestBodies"]["basic.trackTransactionTrackTransactionBody"];
+        requestBody: {
+            content: {
+                "application/json": {
+                    category?: components["schemas"]["v2_transactions.OrderIssueCategory"];
+                    description: string;
+                };
+            };
+        };
         responses: {
             /** @description OK */
             200: {
@@ -9346,55 +1457,38 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
+                    "application/json": components["schemas"]["v2_transactions.Transaction"];
                 };
             };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_id`
-             *       * `empty_carrier`
-             *       * `empty_tracking_code`
-             *       * `tracking_already_added`
-             *       * `payment_details_not_added`
-             *       * `tracking_details_deadline_expired`
-             *       * `already_cancelled`
-             */
+            /** @description Bad Request */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Error"];
+                    "application/json": {
+                        /** @enum {string} */
+                        code: "remainder_required" | "payment_not_accepted" | "handover_already_confirmed" | "item_already_delivered" | "order_issue_already_submitted";
+                        message: string;
+                    };
                 };
             };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_seller`
-             */
+            /** @description Forbidden */
             403: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Error"];
+                    "application/json": {
+                        /** @enum {string} */
+                        code: "not_buyer";
+                        message: string;
+                    };
                 };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
-    "basic.trackTransactionWithGuestSeller": {
+    "v2_transactions.trackTransaction": {
         parameters: {
             query?: never;
             header?: {
@@ -9402,11 +1496,18 @@ export interface operations {
                 "Trustap-User"?: string;
             };
             path: {
-                transaction_id: number;
+                transaction_id: string;
             };
             cookie?: never;
         };
-        requestBody: components["requestBodies"]["basic.trackTransactionTrackTransactionBody"];
+        requestBody: {
+            content: {
+                "application/json": {
+                    carrier: string;
+                    tracking_code: string;
+                };
+            };
+        };
         responses: {
             /** @description OK */
             200: {
@@ -9414,142 +1515,47 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
+                    "application/json": components["schemas"]["v2_transactions.Transaction"];
                 };
             };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `invalid_id`
-             *       * `empty_carrier`
-             *       * `empty_tracking_code`
-             *       * `tracking_already_added`
-             *       * `payment_details_not_added`
-             *       * `tracking_details_deadline_expired`
-             *       * `already_cancelled`
-             */
+            /** @description Bad Request */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Error"];
+                    "application/json": {
+                        /** @enum {string} */
+                        code: "invalid_id" | "empty_carrier" | "empty_tracking_code" | "tracking_already_added" | "payment_details_not_added" | "tracking_details_deadline_expired" | "already_cancelled" | "tracking_not_supported";
+                        message: string;
+                    };
                 };
             };
-            /**
-             * @description Forbidden
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `not_seller`
-             */
+            /** @description Forbidden */
             403: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Error"];
+                    "application/json": {
+                        /** @enum {string} */
+                        code: "not_seller";
+                        message: string;
+                    };
                 };
             };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.claimAsBuyer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                secret: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
+            /** @description Conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
+                    "application/json": {
+                        /** @enum {string} */
+                        code: "missing_payment_intent";
+                        message: string;
+                    };
                 };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `already_claimed`
-             *       * `cannot_claim_own_transaction`
-             *       * `missing_secret`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    "basic.claimTransactionAsSeller": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                secret: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["basic.Transaction"];
-                };
-            };
-            /**
-             * @description Bad Request
-             *
-             *     `code` can be one of the following:
-             *
-             *       * `missing_secret`
-             *       * `already_claimed`
-             *       * `cannot_claim_own_transaction`
-             *       * `invalid_user_platform`
-             */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
