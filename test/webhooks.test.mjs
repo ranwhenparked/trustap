@@ -55,6 +55,22 @@ test("parses v2 webhook payloads and exposes their resulting state", () => {
   assert.equal(mapWebhookToTransactionState(eventWithoutPreview), null);
 });
 
+test("validates event-specific target previews", () => {
+  for (const [code, status] of [
+    ["tx.complained", "complaint_submitted"],
+    ["tx.tracked", "tracked"],
+  ]) {
+    assert.equal(
+      trustapWebhookEventSchema.safeParse({
+        ...paidEvent,
+        code,
+        target_preview: { ...paidEvent.target_preview, status },
+      }).success,
+      false,
+    );
+  }
+});
+
 test("rejects v1 webhook codes and transaction IDs", () => {
   assert.equal(
     trustapWebhookEventSchema.safeParse({

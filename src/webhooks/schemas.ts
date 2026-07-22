@@ -67,8 +67,17 @@ export const trustapTransactionPreviewSchema = z.looseObject({
   status: trustapTransactionStatusSchema,
 });
 
-/** Transaction webhook codes documented for API v2. */
-export const trustapWebhookEventCodes = [
+export const trustapComplainedTransactionPreviewSchema =
+  trustapTransactionPreviewSchema.extend({
+    complaint: z.looseObject({ description: z.string() }),
+  });
+
+export const trustapTrackedTransactionPreviewSchema =
+  trustapTransactionPreviewSchema.extend({
+    tracking: z.looseObject({ tracking_code: z.string() }),
+  });
+
+const genericTrustapWebhookEventCodes = [
   "tx.cancelled",
   "tx.claimed",
   "tx.payment_failed",
@@ -77,31 +86,53 @@ export const trustapWebhookEventCodes = [
   "tx.funds_refunded",
   "tx.payment_accepted",
   "tx.handover_confirmed",
-  "tx.complained",
   "tx.funds_released",
   "tx.refund_issued",
-  "tx.tracked",
   "tx.delivered",
+] as const;
+
+/** Transaction webhook codes documented for API v2. */
+export const trustapWebhookEventCodes = [
+  ...genericTrustapWebhookEventCodes,
+  "tx.complained",
+  "tx.tracked",
 ] as const;
 
 export type TrustapWebhookEventCode =
   (typeof trustapWebhookEventCodes)[number];
 
-/** Unknown event codes fail validation rather than being silently accepted. */
-export const trustapWebhookEventSchema = z.looseObject({
-  code: z.enum(trustapWebhookEventCodes),
+const trustapWebhookEventBaseSchema = z.looseObject({
   user_id: z.string().nullable().optional(),
   target_id: z.string().startsWith("tx_"),
-  target_preview: trustapTransactionPreviewSchema.optional(),
   time: z.string(),
   metadata: z.looseObject({}).optional(),
 });
 
+/** Unknown event codes fail validation rather than being silently accepted. */
+export const trustapWebhookEventSchema = z.discriminatedUnion("code", [
+  trustapWebhookEventBaseSchema.extend({
+    code: z.enum(genericTrustapWebhookEventCodes),
+    target_preview: trustapTransactionPreviewSchema.optional(),
+  }),
+  trustapWebhookEventBaseSchema.extend({
+    code: z.literal("tx.complained"),
+    target_preview: trustapComplainedTransactionPreviewSchema.optional(),
+  }),
+  trustapWebhookEventBaseSchema.extend({
+    code: z.literal("tx.tracked"),
+    target_preview: trustapTrackedTransactionPreviewSchema.optional(),
+  }),
+]);
+
 export type TrustapWebhookEvent = z.infer<typeof trustapWebhookEventSchema>;
-export type TrustapWebhookEventFor<TCode extends TrustapWebhookEventCode> = Omit<
-  TrustapWebhookEvent,
-  "code"
-> & { code: TCode };
+export type TrustapWebhookEventFor<TCode extends TrustapWebhookEventCode> =
+  TrustapWebhookEvent extends infer TEvent
+    ? TEvent extends { code: TrustapWebhookEventCode }
+      ? TCode extends TEvent["code"]
+        ? Omit<TEvent, "code"> & { code: TCode }
+        : never
+      : never
+    : never;
 
 type WebhookEventHandler<TCode extends TrustapWebhookEventCode> = (
   event: TrustapWebhookEventFor<TCode>,
