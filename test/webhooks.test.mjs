@@ -55,20 +55,43 @@ test("parses v2 webhook payloads and exposes their resulting state", () => {
   assert.equal(mapWebhookToTransactionState(eventWithoutPreview), null);
 });
 
-test("validates event-specific target previews", () => {
-  for (const [code, status] of [
-    ["tx.complained", "complaint_submitted"],
-    ["tx.tracked", "tracked"],
-  ]) {
-    assert.equal(
-      trustapWebhookEventSchema.safeParse({
-        ...paidEvent,
-        code,
-        target_preview: { ...paidEvent.target_preview, status },
-      }).success,
-      false,
-    );
-  }
+test("types event-specific target previews", () => {
+  const tracked = trustapWebhookEventSchema.parse({
+    ...paidEvent,
+    code: "tx.tracked",
+    target_preview: {
+      ...paidEvent.target_preview,
+      status: "tracked",
+      tracking: { tracking_code: "9400111899220000000000" },
+    },
+  });
+  assert.equal(
+    tracked.target_preview.tracking.tracking_code,
+    "9400111899220000000000",
+  );
+
+  assert.equal(
+    trustapWebhookEventSchema.safeParse({
+      ...paidEvent,
+      code: "tx.complained",
+      target_preview: {
+        ...paidEvent.target_preview,
+        complaint: { description: 123 },
+        status: "complaint_submitted",
+      },
+    }).success,
+    false,
+  );
+
+  const partialPreview = trustapWebhookEventSchema.safeParse({
+    ...paidEvent,
+    code: "tx.complained",
+    target_preview: {
+      ...paidEvent.target_preview,
+      status: "complaint_submitted",
+    },
+  });
+  assert.equal(partialPreview.success, true);
 });
 
 test("rejects v1 webhook codes and transaction IDs", () => {

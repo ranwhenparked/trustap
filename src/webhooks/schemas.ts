@@ -69,12 +69,12 @@ export const trustapTransactionPreviewSchema = z.looseObject({
 
 export const trustapComplainedTransactionPreviewSchema =
   trustapTransactionPreviewSchema.extend({
-    complaint: z.looseObject({ description: z.string() }),
+    complaint: z.looseObject({ description: z.string() }).optional(),
   });
 
 export const trustapTrackedTransactionPreviewSchema =
   trustapTransactionPreviewSchema.extend({
-    tracking: z.looseObject({ tracking_code: z.string() }),
+    tracking: z.looseObject({ tracking_code: z.string() }).optional(),
   });
 
 const genericTrustapWebhookEventCodes = [
