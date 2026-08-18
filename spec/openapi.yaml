@@ -127,6 +127,76 @@ paths:
           log_req_body: true
           log_resp_body: true
           require_active_country: false
+  /v2/experiences:
+    get:
+      operationId: experiences.getExperiences
+      parameters:
+        - description: |
+            Filter experiences by activity. 
+            Filtering is case sensitive.
+          in: query
+          name: activity
+          schema:
+            type: string
+        - description: |
+            Filter experiences by category. 
+            Filtering is case sensitive.
+          in: query
+          name: category
+          schema:
+            type: string
+        - description: |
+            Filter experiences by title. 
+            Filtering is case insensitive and can contain partial titles.
+          in: query
+          name: title
+          schema:
+            type: string
+        - description: |
+            Filter experiences on and after this date.
+          in: query
+          name: start_date
+          schema:
+            type: string
+        - description: |
+            Filter experiences on and before this date.
+          in: query
+          name: end_date
+          schema:
+            type: string
+        - description: |
+            Filter experiences by country. 
+            Filtering is case insensitive.
+          in: query
+          name: country
+          schema:
+            type: string
+        - description: |
+            Page number.
+          in: query
+          name: page
+          schema:
+            type: integer
+            format: int64
+        - description: |
+            Items per page (max 100)
+          in: query
+          name: page_size
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Returns a paginated list of supported experiences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/experiences.PaginatedExperiences'
+      security:
+        - APIKey: []
+      summary: Get supported experiences
+      x-toc-endpoint:
+        context: experiences
   /v2/fees:
     get:
       description: |
@@ -474,6 +544,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/v2_transactions.Transaction'
+              examples:
+                response:
+                  value:
+                    buyer:
+                      id: 1-def29dfe-8626-48a2-8863-b6fdf2b96ff1
+                      is_guest: true
+                    client_id: 5ad5451d-70c7-43c6-86c9-e1d90556856c
+                    deadlines:
+                      complaints: null
+                    description: Trustap socks
+                    events:
+                      by_key:
+                        created: '2026-07-30T15:49:46Z'
+                        joined: '2026-07-30T15:49:46Z'
+                      by_time:
+                        - at: '2026-07-30T15:49:46Z'
+                          code: created
+                        - at: '2026-07-30T15:49:46Z'
+                          code: joined
+                    funds_release:
+                      refunds: []
+                      released_to_seller: false
+                    id: tx_01kysvfb1ff1j8st5akj3vqknf
+                    metadata: {}
+                    payment_link: >-
+                      https://actions.stage.trustap.com/transactions/tx_01kysvfb1ff1j8st5akj3vqknf/pay
+                    pricing:
+                      amount: 20000
+                      amount_extra: 200
+                      amount_postage: 500
+                      currency: gbp
+                      fees:
+                        buyer: 661
+                        buyer_client: 0
+                        seller: 0
+                        seller_client: 0
+                      postage_bearer: buyer
+                    seller:
+                      id: 8e5cbedc-e57b-42e5-a3bd-2f9ced81a2d0
+                      is_guest: false
+                    status: joined
         '400':
           description: Bad Request
           content:
@@ -498,6 +609,7 @@ paths:
                       - invalid_charge_config
                       - missing_role
                       - invalid_role
+                      - unsupported_role
                     type: string
                   message:
                     type: string
@@ -505,6 +617,8 @@ paths:
                   - code
                   - message
                 type: object
+      security:
+        - APIKey: []
       summary: Create a new transaction
       tags:
         - Transactions
@@ -530,6 +644,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/v2_transactions.Transaction'
+              examples:
+                response:
+                  value:
+                    buyer:
+                      id: 1-def29dfe-8626-48a2-8863-b6fdf2b96ff1
+                      is_guest: true
+                    client_id: 5ad5451d-70c7-43c6-86c9-e1d90556856c
+                    deadlines:
+                      complaints: null
+                    description: Trustap socks
+                    events:
+                      by_key:
+                        created: '2026-07-30T15:49:46Z'
+                        joined: '2026-07-30T15:49:46Z'
+                      by_time:
+                        - at: '2026-07-30T15:49:46Z'
+                          code: created
+                        - at: '2026-07-30T15:49:46Z'
+                          code: joined
+                    funds_release:
+                      refunds: []
+                      released_to_seller: false
+                    id: tx_01kysvfb1ff1j8st5akj3vqknf
+                    metadata: {}
+                    payment_link: >-
+                      https://actions.stage.trustap.com/transactions/tx_01kysvfb1ff1j8st5akj3vqknf/pay
+                    pricing:
+                      amount: 20000
+                      amount_extra: 200
+                      amount_postage: 500
+                      currency: gbp
+                      fees:
+                        buyer: 661
+                        buyer_client: 0
+                        seller: 0
+                        seller_client: 0
+                      postage_bearer: buyer
+                    seller:
+                      id: 8e5cbedc-e57b-42e5-a3bd-2f9ced81a2d0
+                      is_guest: false
+                    status: joined
       summary: Get a transaction by its ID
       tags:
         - Transactions
@@ -563,6 +718,73 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/v2_transactions.Transaction'
+              examples:
+                response:
+                  value:
+                    buyer:
+                      id: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                      is_guest: true
+                    client_id: 5a3d7990-9f1c-4e11-8d67-3da5b160c50a
+                    complaint:
+                      accepted: '2026-07-31T18:34:53Z'
+                      category: other
+                      description: Item arrived damaged
+                    deadlines:
+                      complaints: '2026-07-31T18:38:49Z'
+                    description: Trustap socks
+                    events:
+                      by_key:
+                        complaint_submitted: '2026-07-31T18:34:09Z'
+                        created: '2026-07-31T18:31:13Z'
+                        delivered: '2026-07-31T18:33:49Z'
+                        joined: '2026-07-31T18:31:13Z'
+                        paid: '2026-07-31T18:31:58Z'
+                        payment_accepted: '2026-07-31T18:33:07Z'
+                        refunded: '2026-07-31T18:34:52Z'
+                        tracked: '2026-07-31T18:33:38Z'
+                      by_time:
+                        - at: '2026-07-31T18:31:13Z'
+                          code: created
+                        - at: '2026-07-31T18:31:13Z'
+                          code: joined
+                        - at: '2026-07-31T18:31:58Z'
+                          by: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                          code: paid
+                        - at: '2026-07-31T18:33:07Z'
+                          by: 8e5cbedc-e57b-42e5-a3bd-2f9ced81a2d0
+                          code: payment_accepted
+                        - at: '2026-07-31T18:33:38Z'
+                          code: tracked
+                        - at: '2026-07-31T18:33:49Z'
+                          code: delivered
+                        - at: '2026-07-31T18:34:09Z'
+                          by: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                          code: complaint_submitted
+                        - at: '2026-07-31T18:34:52Z'
+                          code: refunded
+                    funds_release:
+                      refunds:
+                        - amount: 20000
+                          id: '4984'
+                      released_to_seller: false
+                    id: tx_01kywq3p00eaf8h40zmtv6mxhz
+                    metadata: {}
+                    pricing:
+                      amount: 20000
+                      amount_extra: 0
+                      currency: eur
+                      fees:
+                        buyer: 1050
+                        buyer_client: 0
+                        seller: 0
+                        seller_client: 0
+                    seller:
+                      id: 8e5cbedc-e57b-42e5-a3bd-2f9ced81a2d0
+                      is_guest: false
+                    status: refunded
+                    tracking:
+                      carrier: ups
+                      tracking_code: '345345123'
         '400':
           description: Bad Request
           content:
@@ -616,6 +838,52 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/v2_transactions.Transaction'
+              examples:
+                response:
+                  value:
+                    buyer:
+                      id: 1-def29dfe-8626-48a2-8863-b6fdf2b96ff0
+                      is_guest: true
+                    client_id: 5ad5451d-70c7-43c6-86c9-e1d90556856c
+                    deadlines:
+                      complaints: null
+                    description: Trustap socks
+                    events:
+                      by_key:
+                        created: '2026-04-29T11:04:26Z'
+                        joined: '2026-04-29T11:04:26Z'
+                        paid: '2026-04-29T11:05:19Z'
+                        payment_accepted: '2026-04-29T11:06:06Z'
+                      by_time:
+                        - at: '2026-04-29T11:04:26Z'
+                          code: created
+                        - at: '2026-04-29T11:04:26Z'
+                          code: joined
+                        - at: '2026-04-29T11:05:19Z'
+                          by: 1-def29dfe-8626-48a2-8863-b6fdf2b96ff0
+                          code: paid
+                        - at: '2026-04-29T11:06:06Z'
+                          by: 1-3f546125-2ec2-4b14-87f6-54a14ae73e98
+                          code: payment_accepted
+                    funds_release:
+                      refunds: []
+                      released_to_seller: false
+                    id: tx_01kq7pz74mffj9x5vsesqkve08
+                    metadata: {}
+                    pricing:
+                      amount: 20000
+                      amount_extra: 0
+                      currency: gbp
+                      fees:
+                        buyer: 640
+                        buyer_client: 0
+                        international_payment: 310
+                        seller: 0
+                        seller_client: 0
+                    seller:
+                      id: 1-3f546125-2ec2-4b14-87f6-54a14ae73e98
+                      is_guest: true
+                    status: payment_accepted
       summary: Accept the payment for a transaction
       tags:
         - Payment
@@ -672,6 +940,32 @@ paths:
           log_req_body: true
           log_resp_body: true
           require_active_country: false
+  /v2/transactions/{transaction_id}/buyer_details:
+    get:
+      operationId: v2_transactions.getBuyerDetailsForTransaction
+      parameters:
+        - in: path
+          name: transaction_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/v2_transactions.UserDetails'
+      summary: Get the buyer's contact details for a transaction
+      tags:
+        - Transactions
+      x-toc-endpoint:
+        context: p2p_open
+        meta:
+          log_req_body: true
+          log_resp_body: true
+          require_active_country: false
+          skip_offline_scope_check: true
   /v2/transactions/{transaction_id}/cancel:
     post:
       operationId: v2_transactions.cancelTransaction
@@ -709,6 +1003,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/v2_transactions.Transaction'
+              examples:
+                response:
+                  value:
+                    buyer:
+                      id: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                      is_guest: true
+                    cancellation:
+                      description: Colour does not match description
+                    client_id: 5a3d7990-9f1c-4e11-8d67-3da5b160c50a
+                    deadlines:
+                      complaints: null
+                    description: Trustap socks
+                    events:
+                      by_key:
+                        cancelled: '2026-07-31T16:14:03Z'
+                        created: '2026-07-31T16:05:12Z'
+                        joined: '2026-07-31T16:05:12Z'
+                      by_time:
+                        - at: '2026-07-31T16:05:12Z'
+                          code: created
+                        - at: '2026-07-31T16:05:12Z'
+                          code: joined
+                        - at: '2026-07-31T16:14:03Z'
+                          code: cancelled
+                    funds_release:
+                      refunds: []
+                      released_to_seller: false
+                    id: tx_01kyweratweaf9kv5kn2yz6966
+                    metadata: {}
+                    pricing:
+                      amount: 20000
+                      amount_extra: 0
+                      currency: eur
+                      fees:
+                        buyer: 1050
+                        buyer_client: 0
+                        seller: 0
+                        seller_client: 0
+                    seller:
+                      id: 1-22ad0309-d966-440c-8296-9989ff65eebf
+                      is_guest: true
+                    status: cancelled
         '400':
           description: Bad Request
           content:
@@ -780,6 +1116,58 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/v2_transactions.Transaction'
+              examples:
+                response:
+                  value:
+                    buyer:
+                      id: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                      is_guest: true
+                    client_id: 5a3d7990-9f1c-4e11-8d67-3da5b160c50a
+                    deadlines:
+                      complaints: null
+                    description: Trustap socks
+                    events:
+                      by_key:
+                        claimed_by_seller: '2026-07-31T19:25:29Z'
+                        created: '2026-07-31T19:22:05Z'
+                        joined: '2026-07-31T19:22:05Z'
+                        paid: '2026-07-31T19:22:50Z'
+                        payment_accepted: '2026-07-31T19:23:11Z'
+                      by_time:
+                        - at: '2026-07-31T19:22:05Z'
+                          code: created
+                        - at: '2026-07-31T19:22:05Z'
+                          code: joined
+                        - at: '2026-07-31T19:22:50Z'
+                          by: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                          code: paid
+                        - at: '2026-07-31T19:23:11Z'
+                          by: 9c11d028-252b-4124-bd85-21a650f6a793
+                          code: payment_accepted
+                        - at: '2026-07-31T19:25:29Z'
+                          by: 9c11d028-252b-4124-bd85-21a650f6a793
+                          code: claimed_by_seller
+                    funds_release:
+                      refunds: []
+                      released_to_seller: false
+                    id: tx_01kywt0t07eaf8v1abyr7wpank
+                    metadata: {}
+                    payment_link: >-
+                      https://actions.stage.trustap.com/transactions/tx_01kywt0t07eaf8v1abyr7wpank/pay
+                    pricing:
+                      amount: 20000
+                      amount_extra: 0
+                      currency: eur
+                      fees:
+                        buyer: 1050
+                        buyer_client: 0
+                        international_payment: 316
+                        seller: 0
+                        seller_client: 0
+                    seller:
+                      id: 9c11d028-252b-4124-bd85-21a650f6a793
+                      is_guest: false
+                    status: payment_accepted
         '400':
           description: Bad Request
           content:
@@ -792,6 +1180,7 @@ paths:
                       - invalid_role
                       - invalid_user_id
                       - emails_mismatched
+                      - user_is_not_guest
                     type: string
                   message:
                     type: string
@@ -838,6 +1227,61 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/v2_transactions.Transaction'
+              examples:
+                response:
+                  value:
+                    buyer:
+                      id: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                      is_guest: true
+                    client_id: 5a3d7990-9f1c-4e11-8d67-3da5b160c50a
+                    deadlines:
+                      complaints: '2026-07-31T18:13:10Z'
+                    description: Trustap socks
+                    events:
+                      by_key:
+                        created: '2026-07-31T17:57:20Z'
+                        delivered: '2026-07-31T18:08:10Z'
+                        joined: '2026-07-31T17:57:20Z'
+                        paid: '2026-07-31T17:58:34Z'
+                        payment_accepted: '2026-07-31T18:02:31Z'
+                        tracked: '2026-07-31T18:03:25Z'
+                      by_time:
+                        - at: '2026-07-31T17:57:20Z'
+                          code: created
+                        - at: '2026-07-31T17:57:20Z'
+                          code: joined
+                        - at: '2026-07-31T17:58:34Z'
+                          by: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                          code: paid
+                        - at: '2026-07-31T18:02:31Z'
+                          by: 1-22ad0309-d966-440c-8296-9989ff65eebf
+                          code: payment_accepted
+                        - at: '2026-07-31T18:03:25Z'
+                          code: tracked
+                        - at: '2026-07-31T18:08:10Z'
+                          code: delivered
+                    funds_release:
+                      refunds: []
+                      released_to_seller: false
+                    id: tx_01kywn5ma0eafbk92b1qvfv1dw
+                    metadata: {}
+                    pricing:
+                      amount: 20000
+                      amount_extra: 0
+                      currency: eur
+                      fees:
+                        buyer: 1050
+                        buyer_client: 0
+                        international_payment: 316
+                        seller: 0
+                        seller_client: 0
+                    seller:
+                      id: 1-22ad0309-d966-440c-8296-9989ff65eebf
+                      is_guest: true
+                    status: delivered
+                    tracking:
+                      carrier: ups
+                      tracking_code: '345345123'
         '400':
           description: Bad Request
           content:
@@ -846,6 +1290,7 @@ paths:
                 properties:
                   code:
                     enum:
+                      - delivery_not_supported
                       - delivery_already_set
                       - invalid_id
                     type: string
@@ -891,62 +1336,58 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/v2_transactions.Transaction'
+              examples:
+                response:
+                  value:
+                    buyer:
+                      id: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                      is_guest: true
+                    client_id: 5a3d7990-9f1c-4e11-8d67-3da5b160c50a
+                    deadlines:
+                      complaints: '2026-07-31T18:52:59Z'
+                    description: Trustap socks
+                    events:
+                      by_key:
+                        buyer_handover_confirmed: '2026-07-31T18:47:59Z'
+                        created: '2026-07-31T18:45:49Z'
+                        joined: '2026-07-31T18:45:49Z'
+                        paid: '2026-07-31T18:46:36Z'
+                        payment_accepted: '2026-07-31T18:46:53Z'
+                      by_time:
+                        - at: '2026-07-31T18:45:49Z'
+                          code: created
+                        - at: '2026-07-31T18:45:49Z'
+                          code: joined
+                        - at: '2026-07-31T18:46:36Z'
+                          by: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                          code: paid
+                        - at: '2026-07-31T18:46:53Z'
+                          by: 8e5cbedc-e57b-42e5-a3bd-2f9ced81a2d0
+                          code: payment_accepted
+                        - at: '2026-07-31T18:47:59Z'
+                          by: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                          code: buyer_handover_confirmed
+                    funds_release:
+                      refunds: []
+                      released_to_seller: false
+                    id: tx_01kywqydvkeaf8yz2sw2q0wmn3
+                    metadata: {}
+                    pricing:
+                      amount: 20000
+                      amount_extra: 0
+                      currency: eur
+                      fees:
+                        buyer: 1050
+                        buyer_client: 0
+                        seller: 0
+                        seller_client: 0
+                    seller:
+                      id: 8e5cbedc-e57b-42e5-a3bd-2f9ced81a2d0
+                      is_guest: false
+                    status: buyer_handover_confirmed
       summary: Confirm the handover of goods for a transaction
       tags:
         - Handover
-      x-toc-endpoint:
-        context: p2p_any_user
-        meta:
-          allow_guest_user: true
-          log_req_body: true
-          log_resp_body: true
-          require_active_country: false
-          skip_offline_scope_check: true
-  /v2/transactions/{transaction_id}/end_complaint_period:
-    post:
-      operationId: v2_transactions.endComplaintPeriodForTransaction
-      parameters:
-        - description: >-
-            Required in client flows, where you make API calls on behalf of
-            another Trustap user.
-          in: header
-          name: Trustap-User
-          required: false
-          schema:
-            type: string
-        - in: path
-          name: transaction_id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/v2_transactions.Transaction'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                properties:
-                  code:
-                    enum:
-                      - complaint_period_expired
-                      - handover_not_confirmed
-                      - funds_already_released
-                    type: string
-                  message:
-                    type: string
-                required:
-                  - code
-                  - message
-                type: object
-      summary: End the complaint period for this transaction
-      tags:
-        - Transaction Issues
       x-toc-endpoint:
         context: p2p_any_user
         meta:
@@ -978,6 +1419,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/v2_transactions.Transaction'
+              examples:
+                response:
+                  value:
+                    buyer:
+                      id: 1-506ec116-f0b3-4ea8-bfd0-ea0e7b9d18aa
+                      is_guest: true
+                    client_id: 5a3d7990-9f1c-4e11-8d67-3da5b160c50a
+                    contains_shipping: true
+                    deadlines:
+                      complaints: null
+                    description: Trustap socks
+                    events:
+                      by_key:
+                        created: '2026-06-16T09:22:35Z'
+                        joined: '2026-06-16T09:22:35Z'
+                      by_time:
+                        - at: '2026-06-16T09:22:35Z'
+                          code: created
+                        - at: '2026-06-16T09:22:35Z'
+                          code: joined
+                    id: tx_01kv7vtr9vfr5rnttm3n4x17z2
+                    metadata:
+                      customer_url: https://my-bike-parts.com/
+                      part_number: '98932'
+                    pricing:
+                      amount: 20000
+                      amount_extra: 0
+                      currency: eur
+                      fees:
+                        buyer: 1050
+                        buyer_client: 0
+                        seller: 0
+                        seller_client: 0
+                    seller:
+                      id: 8e5cbedc-e57b-42e5-a3bd-2f9ced81a2d0
+                      is_guest: false
+                    status: joined
         '400':
           description: Bad Request
           content:
@@ -1145,6 +1623,68 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/v2_transactions.Transaction'
+              examples:
+                response:
+                  value:
+                    buyer:
+                      id: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                      is_guest: true
+                    client_id: 5a3d7990-9f1c-4e11-8d67-3da5b160c50a
+                    complaint:
+                      category: other
+                      description: Item arrived damaged
+                    deadlines:
+                      complaints: '2026-07-31T18:13:10Z'
+                    description: Trustap socks
+                    events:
+                      by_key:
+                        complaint_submitted: '2026-07-31T18:10:56Z'
+                        created: '2026-07-31T17:57:20Z'
+                        delivered: '2026-07-31T18:08:10Z'
+                        joined: '2026-07-31T17:57:20Z'
+                        paid: '2026-07-31T17:58:34Z'
+                        payment_accepted: '2026-07-31T18:02:31Z'
+                        tracked: '2026-07-31T18:03:25Z'
+                      by_time:
+                        - at: '2026-07-31T17:57:20Z'
+                          code: created
+                        - at: '2026-07-31T17:57:20Z'
+                          code: joined
+                        - at: '2026-07-31T17:58:34Z'
+                          by: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                          code: paid
+                        - at: '2026-07-31T18:02:31Z'
+                          by: 1-22ad0309-d966-440c-8296-9989ff65eebf
+                          code: payment_accepted
+                        - at: '2026-07-31T18:03:25Z'
+                          code: tracked
+                        - at: '2026-07-31T18:08:10Z'
+                          code: delivered
+                        - at: '2026-07-31T18:10:56Z'
+                          by: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                          code: complaint_submitted
+                    funds_release:
+                      refunds: []
+                      released_to_seller: false
+                    id: tx_01kywn5ma0eafbk92b1qvfv1dw
+                    metadata: {}
+                    pricing:
+                      amount: 20000
+                      amount_extra: 0
+                      currency: eur
+                      fees:
+                        buyer: 1050
+                        buyer_client: 0
+                        international_payment: 316
+                        seller: 0
+                        seller_client: 0
+                    seller:
+                      id: 1-22ad0309-d966-440c-8296-9989ff65eebf
+                      is_guest: true
+                    status: complaint_submitted
+                    tracking:
+                      carrier: ups
+                      tracking_code: '345345123'
         '400':
           description: Bad Request
           content:
@@ -1218,6 +1758,58 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/v2_transactions.Transaction'
+              examples:
+                response:
+                  value:
+                    buyer:
+                      id: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                      is_guest: true
+                    client_id: 5a3d7990-9f1c-4e11-8d67-3da5b160c50a
+                    deadlines:
+                      complaints: null
+                    description: Trustap socks
+                    events:
+                      by_key:
+                        created: '2026-07-31T18:38:12Z'
+                        joined: '2026-07-31T18:38:12Z'
+                        order_issue_submitted: '2026-07-31T18:42:20Z'
+                        paid: '2026-07-31T18:39:02Z'
+                        payment_accepted: '2026-07-31T18:39:24Z'
+                      by_time:
+                        - at: '2026-07-31T18:38:12Z'
+                          code: created
+                        - at: '2026-07-31T18:38:12Z'
+                          code: joined
+                        - at: '2026-07-31T18:39:02Z'
+                          by: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                          code: paid
+                        - at: '2026-07-31T18:39:24Z'
+                          by: 8e5cbedc-e57b-42e5-a3bd-2f9ced81a2d0
+                          code: payment_accepted
+                        - at: '2026-07-31T18:42:20Z'
+                          by: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                          code: order_issue_submitted
+                    funds_release:
+                      refunds: []
+                      released_to_seller: false
+                    id: tx_01kywqgetdeafageg8d7ntam8f
+                    metadata: {}
+                    order_issue:
+                      category: item_not_received
+                      description: No contact from seller
+                    pricing:
+                      amount: 20000
+                      amount_extra: 0
+                      currency: eur
+                      fees:
+                        buyer: 1050
+                        buyer_client: 0
+                        seller: 0
+                        seller_client: 0
+                    seller:
+                      id: 8e5cbedc-e57b-42e5-a3bd-2f9ced81a2d0
+                      is_guest: false
+                    status: payment_accepted
         '400':
           description: Bad Request
           content:
@@ -1313,6 +1905,58 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/v2_transactions.Transaction'
+              examples:
+                response:
+                  value:
+                    buyer:
+                      id: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                      is_guest: true
+                    client_id: 5a3d7990-9f1c-4e11-8d67-3da5b160c50a
+                    deadlines:
+                      complaints: null
+                    description: Trustap socks
+                    events:
+                      by_key:
+                        created: '2026-07-31T17:57:20Z'
+                        joined: '2026-07-31T17:57:20Z'
+                        paid: '2026-07-31T17:58:34Z'
+                        payment_accepted: '2026-07-31T18:02:31Z'
+                        tracked: '2026-07-31T18:03:25Z'
+                      by_time:
+                        - at: '2026-07-31T17:57:20Z'
+                          code: created
+                        - at: '2026-07-31T17:57:20Z'
+                          code: joined
+                        - at: '2026-07-31T17:58:34Z'
+                          by: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
+                          code: paid
+                        - at: '2026-07-31T18:02:31Z'
+                          by: 1-22ad0309-d966-440c-8296-9989ff65eebf
+                          code: payment_accepted
+                        - at: '2026-07-31T18:03:25Z'
+                          code: tracked
+                    funds_release:
+                      refunds: []
+                      released_to_seller: false
+                    id: tx_01kywn5ma0eafbk92b1qvfv1dw
+                    metadata: {}
+                    pricing:
+                      amount: 20000
+                      amount_extra: 0
+                      currency: eur
+                      fees:
+                        buyer: 1050
+                        buyer_client: 0
+                        international_payment: 316
+                        seller: 0
+                        seller_client: 0
+                    seller:
+                      id: 1-22ad0309-d966-440c-8296-9989ff65eebf
+                      is_guest: true
+                    status: tracked
+                    tracking:
+                      carrier: ups
+                      tracking_code: '345345123'
         '400':
           description: Bad Request
           content:
@@ -1408,6 +2052,8 @@ x-tagGroups:
   - name: Users
     tags:
       - Buyers and Sellers
+  - name: Payment
+    tags:
       - Payment
   - name: Transactions
     tags:
@@ -1434,6 +2080,96 @@ components:
             https://sso.trustap.com/auth/realms/trustap-stage/protocol/openid-connect/token
           scopes: {}
   schemas:
+    experiences.Experience:
+      properties:
+        activity:
+          type: string
+        category:
+          type: string
+        date:
+          type: string
+        display_title:
+          type: string
+        id:
+          type: integer
+        image:
+          type: string
+        is_featured:
+          type: boolean
+        location:
+          type: string
+        max_price:
+          type: integer
+        min_price:
+          type: integer
+        open_time:
+          type: string
+        participants:
+          items:
+            $ref: '#/components/schemas/experiences.Participant'
+          type: array
+        title:
+          type: string
+        total_listings:
+          type: integer
+        type:
+          type: string
+        venue:
+          $ref: '#/components/schemas/experiences.Venue'
+      required:
+        - id
+      type: object
+    experiences.PaginatedExperiences:
+      properties:
+        experiences:
+          items:
+            $ref: '#/components/schemas/experiences.Experience'
+          type: array
+        pagination:
+          properties:
+            page:
+              type: integer
+            page_size:
+              type: integer
+            total_items:
+              type: integer
+            total_pages:
+              type: integer
+          required:
+            - page
+            - page_size
+            - total_items
+            - total_pages
+          type: object
+      type: object
+    experiences.Participant:
+      properties:
+        id:
+          type: integer
+        image:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+      required:
+        - id
+      type: object
+    experiences.Venue:
+      properties:
+        city:
+          type: string
+        country:
+          type: string
+        id:
+          type: integer
+        name:
+          type: string
+        state:
+          type: string
+      required:
+        - id
+      type: object
     v2_transactions.BankTransferDetails:
       properties:
         processor:
@@ -1826,7 +2562,7 @@ components:
         funds_release:
           refunds: []
           released_to_seller: false
-        id: tx_2106
+        id: tx_21066
         pricing:
           amount: 1000
           amount_extra: 0
@@ -1888,6 +2624,8 @@ components:
           $ref: '#/components/schemas/v2_transactions.Events'
         funds_release:
           properties:
+            payout_id:
+              type: string
             refunds:
               items:
                 properties:
@@ -1971,6 +2709,27 @@ components:
       required:
         - id
         - is_guest
+      type: object
+    v2_transactions.UserDetails:
+      properties:
+        email:
+          type: string
+        name:
+          $ref: '#/components/schemas/v2_transactions.UserDetailsName'
+        phone:
+          type: string
+      required:
+        - email
+      type: object
+    v2_transactions.UserDetailsName:
+      properties:
+        first:
+          type: string
+        last:
+          type: string
+      required:
+        - first
+        - last
       type: object
     v2_users.TosAcceptance:
       properties:

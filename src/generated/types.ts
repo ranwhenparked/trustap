@@ -31,6 +31,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v2/experiences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get supported experiences */
+        get: operations["experiences.getExperiences"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v2/fees": {
         parameters: {
             query?: never;
@@ -171,6 +188,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v2/transactions/{transaction_id}/buyer_details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the buyer's contact details for a transaction */
+        get: operations["v2_transactions.getBuyerDetailsForTransaction"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v2/transactions/{transaction_id}/cancel": {
         parameters: {
             query?: never;
@@ -243,23 +277,6 @@ export interface paths {
         put?: never;
         /** Confirm the handover of goods for a transaction */
         post: operations["v2_transactions.confirmHandoverForTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v2/transactions/{transaction_id}/end_complaint_period": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** End the complaint period for this transaction */
-        post: operations["v2_transactions.endComplaintPeriodForTransaction"];
         delete?: never;
         options?: never;
         head?: never;
@@ -372,6 +389,46 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        "experiences.Experience": {
+            activity?: string;
+            category?: string;
+            date?: string;
+            display_title?: string;
+            id: number;
+            image?: string;
+            is_featured?: boolean;
+            location?: string;
+            max_price?: number;
+            min_price?: number;
+            open_time?: string;
+            participants?: components["schemas"]["experiences.Participant"][];
+            title?: string;
+            total_listings?: number;
+            type?: string;
+            venue?: components["schemas"]["experiences.Venue"];
+        };
+        "experiences.PaginatedExperiences": {
+            experiences?: components["schemas"]["experiences.Experience"][];
+            pagination?: {
+                page: number;
+                page_size: number;
+                total_items: number;
+                total_pages: number;
+            };
+        };
+        "experiences.Participant": {
+            id: number;
+            image?: string;
+            name?: string;
+            type?: string;
+        };
+        "experiences.Venue": {
+            city?: string;
+            country?: string;
+            id: number;
+            name?: string;
+            state?: string;
+        };
         "v2_transactions.BankTransferDetails": {
             processor: string;
             stripe?: components["schemas"]["v2_transactions.StripeBankTransferDetails"];
@@ -591,7 +648,7 @@ export interface components {
          *         "refunds": [],
          *         "released_to_seller": false
          *       },
-         *       "id": "tx_2106",
+         *       "id": "tx_21066",
          *       "pricing": {
          *         "amount": 1000,
          *         "amount_extra": 0,
@@ -640,6 +697,7 @@ export interface components {
             description: string;
             events: components["schemas"]["v2_transactions.Events"];
             funds_release?: {
+                payout_id?: string;
                 refunds: {
                     /** Format: int64 */
                     amount: number;
@@ -678,6 +736,15 @@ export interface components {
         "v2_transactions.User": {
             id: string;
             is_guest: boolean;
+        };
+        "v2_transactions.UserDetails": {
+            email: string;
+            name?: components["schemas"]["v2_transactions.UserDetailsName"];
+            phone?: string;
+        };
+        "v2_transactions.UserDetailsName": {
+            first: string;
+            last: string;
         };
         "v2_users.TosAcceptance": {
             ip: string;
@@ -724,6 +791,55 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["v2_transactions.Carrier"][];
+                };
+            };
+        };
+    };
+    "experiences.getExperiences": {
+        parameters: {
+            query?: {
+                /**
+                 * @description Filter experiences by activity.
+                 *     Filtering is case sensitive.
+                 */
+                activity?: string;
+                /**
+                 * @description Filter experiences by category.
+                 *     Filtering is case sensitive.
+                 */
+                category?: string;
+                /**
+                 * @description Filter experiences by title.
+                 *     Filtering is case insensitive and can contain partial titles.
+                 */
+                title?: string;
+                /** @description Filter experiences on and after this date. */
+                start_date?: string;
+                /** @description Filter experiences on and before this date. */
+                end_date?: string;
+                /**
+                 * @description Filter experiences by country.
+                 *     Filtering is case insensitive.
+                 */
+                country?: string;
+                /** @description Page number. */
+                page?: number;
+                /** @description Items per page (max 100) */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns a paginated list of supported experiences */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["experiences.PaginatedExperiences"];
                 };
             };
         };
@@ -956,7 +1072,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @enum {string} */
-                        code: "invalid_currency" | "missing_user_id" | "invalid_user_id" | "missing_seller_id" | "missing_buyer_id" | "invalid_seller_id" | "invalid_buyer_id" | "incorrect_charge" | "negative_amount" | "amount_too_low" | "invalid_charge_config" | "missing_role" | "invalid_role";
+                        code: "invalid_currency" | "missing_user_id" | "invalid_user_id" | "missing_seller_id" | "missing_buyer_id" | "invalid_seller_id" | "invalid_buyer_id" | "incorrect_charge" | "negative_amount" | "amount_too_low" | "invalid_charge_config" | "missing_role" | "invalid_role" | "unsupported_role";
                         message: string;
                     };
                 };
@@ -1083,6 +1199,28 @@ export interface operations {
             };
         };
     };
+    "v2_transactions.getBuyerDetailsForTransaction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transaction_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["v2_transactions.UserDetails"];
+                };
+            };
+        };
+    };
     "v2_transactions.cancelTransaction": {
         parameters: {
             query?: never;
@@ -1166,7 +1304,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @enum {string} */
-                        code: "cannot_claim_own_transaction" | "invalid_role" | "invalid_user_id" | "emails_mismatched";
+                        code: "cannot_claim_own_transaction" | "invalid_role" | "invalid_user_id" | "emails_mismatched" | "user_is_not_guest";
                         message: string;
                     };
                 };
@@ -1204,7 +1342,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @enum {string} */
-                        code: "delivery_already_set" | "invalid_id";
+                        code: "delivery_not_supported" | "delivery_already_set" | "invalid_id";
                         message: string;
                     };
                 };
@@ -1232,44 +1370,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["v2_transactions.Transaction"];
-                };
-            };
-        };
-    };
-    "v2_transactions.endComplaintPeriodForTransaction": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["v2_transactions.Transaction"];
-                };
-            };
-            /** @description Bad Request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        code: "complaint_period_expired" | "handover_not_confirmed" | "funds_already_released";
-                        message: string;
-                    };
                 };
             };
         };
