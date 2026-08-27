@@ -1202,7 +1202,7 @@ paths:
   /v2/transactions/{transaction_id}/confirm_delivery:
     post:
       description: |
-        This endpoint allows the buyer to manually confirm the delivery
+        This endpoint allows a user to confirm the delivery
         of the item in the case that the state of the transaction was
         not updated asynchronously by Trustap
       operationId: v2_transactions.confirmDeliveryForTransaction
@@ -1306,88 +1306,6 @@ paths:
       summary: Confirm delivery for this transaction
       tags:
         - Shipping
-      x-toc-endpoint:
-        context: p2p_any_user
-        meta:
-          allow_guest_user: true
-          log_req_body: true
-          log_resp_body: true
-  /v2/transactions/{transaction_id}/confirm_handover:
-    post:
-      operationId: v2_transactions.confirmHandoverForTransaction
-      parameters:
-        - description: >-
-            Required in client flows, where you make API calls on behalf of
-            another Trustap user.
-          in: header
-          name: Trustap-User
-          required: false
-          schema:
-            type: string
-        - in: path
-          name: transaction_id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/v2_transactions.Transaction'
-              examples:
-                response:
-                  value:
-                    buyer:
-                      id: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
-                      is_guest: true
-                    client_id: 5a3d7990-9f1c-4e11-8d67-3da5b160c50a
-                    deadlines:
-                      complaints: '2026-07-31T18:52:59Z'
-                    description: Trustap socks
-                    events:
-                      by_key:
-                        buyer_handover_confirmed: '2026-07-31T18:47:59Z'
-                        created: '2026-07-31T18:45:49Z'
-                        joined: '2026-07-31T18:45:49Z'
-                        paid: '2026-07-31T18:46:36Z'
-                        payment_accepted: '2026-07-31T18:46:53Z'
-                      by_time:
-                        - at: '2026-07-31T18:45:49Z'
-                          code: created
-                        - at: '2026-07-31T18:45:49Z'
-                          code: joined
-                        - at: '2026-07-31T18:46:36Z'
-                          by: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
-                          code: paid
-                        - at: '2026-07-31T18:46:53Z'
-                          by: 8e5cbedc-e57b-42e5-a3bd-2f9ced81a2d0
-                          code: payment_accepted
-                        - at: '2026-07-31T18:47:59Z'
-                          by: 1-a5034d6a-1110-4d33-b6dd-c6ff1b3b2e28
-                          code: buyer_handover_confirmed
-                    funds_release:
-                      refunds: []
-                      released_to_seller: false
-                    id: tx_01kywqydvkeaf8yz2sw2q0wmn3
-                    metadata: {}
-                    pricing:
-                      amount: 20000
-                      amount_extra: 0
-                      currency: eur
-                      fees:
-                        buyer: 1050
-                        buyer_client: 0
-                        seller: 0
-                        seller_client: 0
-                    seller:
-                      id: 8e5cbedc-e57b-42e5-a3bd-2f9ced81a2d0
-                      is_guest: false
-                    status: buyer_handover_confirmed
-      summary: Confirm the handover of goods for a transaction
-      tags:
-        - Handover
       x-toc-endpoint:
         context: p2p_any_user
         meta:
@@ -2436,8 +2354,6 @@ components:
         - complaint_submitted
         - complaint_period_ended
         - refunded
-        - buyer_handover_confirmed
-        - seller_handover_confirmed
         - tracked
         - delivered
         - funds_released
@@ -2551,13 +2467,12 @@ components:
         description: Soccer ticket
         events:
           by_key:
-            buyer_handover_confirmed: '2019-12-25T16:00:00Z'
             created: '2019-12-25T09:00:00Z'
+            delivered: '2019-12-25T16:00:00Z'
             funds_released: '2019-12-25T17:00:00Z'
             joined: '2019-12-25T10:00:00Z'
             paid: '2019-12-25T11:00:00Z'
             payment_accepted: '2019-12-25T12:00:00Z'
-            seller_handover_confirmed: '2019-12-25T15:00:00Z'
           by_time: []
         funds_release:
           refunds: []

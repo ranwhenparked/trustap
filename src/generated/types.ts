@@ -255,28 +255,11 @@ export interface paths {
         put?: never;
         /**
          * Confirm delivery for this transaction
-         * @description This endpoint allows the buyer to manually confirm the delivery
+         * @description This endpoint allows a user to confirm the delivery
          *     of the item in the case that the state of the transaction was
          *     not updated asynchronously by Trustap
          */
         post: operations["v2_transactions.confirmDeliveryForTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v2/transactions/{transaction_id}/confirm_handover": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Confirm the handover of goods for a transaction */
-        post: operations["v2_transactions.confirmHandoverForTransaction"];
         delete?: never;
         options?: never;
         head?: never;
@@ -581,7 +564,7 @@ export interface components {
             state: string;
         };
         /** @enum {string} */
-        "v2_transactions.Status": "created" | "joined" | "rejected" | "cancelled" | "paid" | "review_flagged" | "payment_accepted" | "complaint_submitted" | "complaint_period_ended" | "refunded" | "buyer_handover_confirmed" | "seller_handover_confirmed" | "tracked" | "delivered" | "funds_released" | "claimed_by_buyer" | "claimed_by_seller";
+        "v2_transactions.Status": "created" | "joined" | "rejected" | "cancelled" | "paid" | "review_flagged" | "payment_accepted" | "complaint_submitted" | "complaint_period_ended" | "refunded" | "tracked" | "delivered" | "funds_released" | "claimed_by_buyer" | "claimed_by_seller";
         "v2_transactions.StripeAba": {
             account_number: string;
             bank_name: string;
@@ -634,13 +617,12 @@ export interface components {
          *       "description": "Soccer ticket",
          *       "events": {
          *         "by_key": {
-         *           "buyer_handover_confirmed": "2019-12-25T16:00:00Z",
          *           "created": "2019-12-25T09:00:00Z",
+         *           "delivered": "2019-12-25T16:00:00Z",
          *           "funds_released": "2019-12-25T17:00:00Z",
          *           "joined": "2019-12-25T10:00:00Z",
          *           "paid": "2019-12-25T11:00:00Z",
-         *           "payment_accepted": "2019-12-25T12:00:00Z",
-         *           "seller_handover_confirmed": "2019-12-25T15:00:00Z"
+         *           "payment_accepted": "2019-12-25T12:00:00Z"
          *         },
          *         "by_time": []
          *       },
@@ -1345,31 +1327,6 @@ export interface operations {
                         code: "delivery_not_supported" | "delivery_already_set" | "invalid_id";
                         message: string;
                     };
-                };
-            };
-        };
-    };
-    "v2_transactions.confirmHandoverForTransaction": {
-        parameters: {
-            query?: never;
-            header?: {
-                /** @description Required in client flows, where you make API calls on behalf of another Trustap user. */
-                "Trustap-User"?: string;
-            };
-            path: {
-                transaction_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["v2_transactions.Transaction"];
                 };
             };
         };

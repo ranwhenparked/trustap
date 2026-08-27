@@ -14,8 +14,6 @@ export const trustapTransactionStatusSchema: z.ZodType<
   "complaint_submitted",
   "complaint_period_ended",
   "refunded",
-  "buyer_handover_confirmed",
-  "seller_handover_confirmed",
   "tracked",
   "delivered",
   "funds_released",
