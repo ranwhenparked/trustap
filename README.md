@@ -1,5 +1,10 @@
 # @ranwhenparked/trustap-sdk
 
+[![npm version](https://img.shields.io/npm/v/@ranwhenparked/trustap-sdk.svg)](https://www.npmjs.com/package/@ranwhenparked/trustap-sdk)
+[![npm downloads](https://img.shields.io/npm/dm/@ranwhenparked/trustap-sdk.svg)](https://www.npmjs.com/package/@ranwhenparked/trustap-sdk)
+[![OpenAPI spec sync](https://github.com/ranwhenparked/trustap-sdk/actions/workflows/check-spec.yml/badge.svg)](https://github.com/ranwhenparked/trustap-sdk/actions/workflows/check-spec.yml)
+[![license](https://img.shields.io/npm/l/@ranwhenparked/trustap-sdk.svg)](https://www.npmjs.com/package/@ranwhenparked/trustap-sdk)
+
 Type-safe TypeScript SDK for Trustap API v2, generated from Trustap's OpenAPI specification and including Zod webhook validation.
 
 ## Install
