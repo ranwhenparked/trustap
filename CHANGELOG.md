@@ -2,6 +2,12 @@
 
 All notable changes to this package are documented here.
 
+## [3.0.1](https://github.com/ranwhenparked/trustap-sdk/releases/tag/v3.0.1) - 2026-09-01
+
+### Fixed
+
+- Added the JSON content type to bodyless POST requests, including path-based client calls.
+
 ## [3.0.0](https://github.com/ranwhenparked/trustap-sdk/releases/tag/v3.0.0) - 2026-08-27
 
 ### Breaking changes
