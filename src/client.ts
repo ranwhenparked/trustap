@@ -36,13 +36,14 @@ export function createBearerAuthHeader(accessToken: string): string {
 export function createTrustapClient(options: TrustapClientOptions = {}): TrustapClient {
   const { baseUrl = TRUSTAP_BASE_URLS.sandbox, headers, auth, ...rest } = options;
   const authHeader = resolveAuthHeader(auth);
-  const clientOptions: ClientOptions = { baseUrl, ...rest };
-
-  if (authHeader) {
-    clientOptions.headers = withAuthHeader(headers, authHeader);
-  } else if (headers) {
-    clientOptions.headers = headers;
-  }
+  const defaultHeaders = withDefaultHeaders(headers);
+  const clientOptions: ClientOptions = {
+    baseUrl,
+    headers: authHeader
+      ? withAuthHeader(defaultHeaders, authHeader)
+      : defaultHeaders,
+    ...rest,
+  };
 
   return createClient<paths>(clientOptions);
 }
@@ -52,13 +53,14 @@ export function createTrustapPathClient(
 ): TrustapPathClient {
   const { baseUrl = TRUSTAP_BASE_URLS.sandbox, headers, auth, ...rest } = options;
   const authHeader = resolveAuthHeader(auth);
-  const clientOptions: ClientOptions = { baseUrl, ...rest };
-
-  if (authHeader) {
-    clientOptions.headers = withAuthHeader(headers, authHeader);
-  } else if (headers) {
-    clientOptions.headers = headers;
-  }
+  const defaultHeaders = withDefaultHeaders(headers);
+  const clientOptions: ClientOptions = {
+    baseUrl,
+    headers: authHeader
+      ? withAuthHeader(defaultHeaders, authHeader)
+      : defaultHeaders,
+    ...rest,
+  };
 
   return createPathBasedClient<paths>(clientOptions);
 }
@@ -75,6 +77,12 @@ function withAuthHeader(
   value: string,
 ): Headers {
   return mergeHeaders(headers, { Authorization: value });
+}
+
+function withDefaultHeaders(
+  headers: ClientOptions["headers"] | undefined,
+): Headers {
+  return mergeHeaders({ "Content-Type": "application/json" }, headers);
 }
 
 const BASE64_ALPHABET =
